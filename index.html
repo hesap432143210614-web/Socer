@@ -744,22 +744,8 @@ body.twop .pen-panel { left: calc(100% + 5.5vh); }
 body.twop .diff-label { display: none; }
 body.penonly .scoreboard .timer { display: none; }
 
-/* === SÜRÜM / KOD KOPYALAMA === */
+/* === SÜRÜM === */
 .menu-ver { margin-top: -2.6vh; margin-bottom: 2vh; font-size: 2vh; font-weight: bold; letter-spacing: 0.3vh; color: #fbbf24; }
-.copy-note { min-height: 2.4vh; font-size: 1.7vh; opacity: 0.9; text-align: center; max-width: 40vh; }
-.code-sheet {
-    position: fixed; inset: 0; z-index: 10002; display: none; flex-direction: column;
-    gap: 1.2vh; padding: 2vh; box-sizing: border-box; background: rgba(0, 0, 0, 0.92);
-    color: #ffffff; font-family: system-ui, sans-serif;
-}
-.code-sheet textarea {
-    flex: 1; width: 100%; box-sizing: border-box; background: #0b130e; color: #d6ffe3;
-    border: 0.2vh solid rgba(255,255,255,0.35); border-radius: 1vh; padding: 1vh;
-    font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 1.4vh; white-space: pre;
-}
-.code-sheet .row { display: flex; gap: 1vh; }
-.code-sheet .row button { flex: 1; padding: 1.6vh; font-size: 2vh; font-weight: bold; border-radius: 1vh; border: 0.2vh solid #fff; color: #fff; background: #15803d; }
-.code-sheet .row button.alt { background: rgba(255,255,255,0.12); }
 
 /* === PENALTI PANELİ === */
 .pen-panel {
@@ -837,11 +823,6 @@ body.penonly .scoreboard .timer { display: none; }
 <button class="menu-top" id="menuBtn">☰ MENÜ</button>
 </div>
 <div class="banner" id="banner"></div>
-<div class="code-sheet" id="codeSheet">
-    <div id="codeMsg" style="font-size:1.8vh">Kod otomatik kopyalanamadı. Aşağıdaki metni seçip kopyala:</div>
-    <textarea id="codeText" readonly></textarea>
-    <div class="row"><button id="codeSelBtn">TÜMÜNÜ SEÇ / KOPYALA</button><button class="alt" id="codeCloseBtn">KAPAT</button></div>
-</div>
 <div class="confirm" id="confirm">
     <div class="confirm-box">
         <div class="confirm-title">⚠ DİKKAT</div>
@@ -857,8 +838,6 @@ body.penonly .scoreboard .timer { display: none; }
     <button class="big-btn" id="twoBtn" style="background:#2563eb">İKİ OYUNCULU</button>
     <button class="big-btn" id="penModeBtn" style="background:#15803d">PENALTILAR</button>
     <button class="big-btn alt" id="helpBtn">NASIL OYNANIR</button>
-    <button class="big-btn alt" id="copyBtn" style="font-size:2vh;padding:1.4vh 2vh">&lt;/&gt; KODU KOPYALA</button>
-    <div class="copy-note" id="copyNote"></div>
     <div class="help-box" id="helpBox">
         <b>Hızlı maç:</b> <b>joystick</b> ile hareket et, <b>şut butonu</b> ile vur. Kırmızı sensin, mavi bilgisayar; zorluğu sen seçersin.<br>
         <b>İki oyunculu:</b> altta kırmızı oyuncunun, üstte mavi oyuncunun joystick ve şut butonu var.<br>
@@ -1464,7 +1443,6 @@ setInterval(setRealHeight, 500);   // adres çubuğu göster/gizle'de tetikle
         confirmEl.style.display = 'none';
         menuEl.style.display = 'none';
         penMenuEl.style.display = 'none';
-        document.getElementById('copyNote').textContent = '';
         document.getElementById('helpBox').style.display = 'none';
         mainMenuEl.style.display = 'flex';
         menuBtnEl.style.display = 'none';
@@ -1518,62 +1496,6 @@ setInterval(setRealHeight, 500);   // adres çubuğu göster/gizle'de tetikle
         setPenOnly(true);
         startTwoPlayer();
     });
-    // === KODU KOPYALA ===
-    // Oyunun kaynak kodu yayında 'socer-v1.2-kod.txt' dosyası olarak durur; panoya kopyalanır.
-    const copyNoteEl = document.getElementById('copyNote');
-    const codeSheetEl = document.getElementById('codeSheet');
-    const codeTextEl = document.getElementById('codeText');
-    function copyNote(msg) { copyNoteEl.textContent = msg; }
-    async function fetchSource() {
-        for (const url of ['socer-v1.2-kod.txt', location.href]) {
-            try {
-                const r = await fetch(url, { cache: 'no-store' });
-                if (!r.ok) continue;
-                const t = await r.text();
-                if (t.length > 20000 && t.indexOf('Socer') >= 0) return t;
-            } catch (e) {}
-        }
-        return null;
-    }
-    function legacyCopy(text) {
-        try {
-            const ta = document.createElement('textarea');
-            ta.value = text;
-            ta.setAttribute('readonly', '');
-            ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;';
-            document.body.appendChild(ta);
-            ta.select();
-            ta.setSelectionRange(0, text.length);
-            const ok = document.execCommand('copy');
-            ta.remove();
-            return ok;
-        } catch (e) { return false; }
-    }
-    async function copyCode() {
-        copyNote('kod hazırlanıyor…');
-        const text = await fetchSource();
-        if (!text) { copyNote('Kaynak kod dosyası bulunamadı.'); return; }
-        const kb = Math.round(text.length / 1024) + ' KB';
-        let ok = false;
-        try { await navigator.clipboard.writeText(text); ok = true; } catch (e) {}
-        if (!ok) ok = legacyCopy(text);
-        if (ok) { copyNote('✓ Kod kopyalandı (' + kb + ')'); return; }
-        // Pano izni yoksa: metni göster, elle kopyalansın
-        codeTextEl.value = text;
-        codeSheetEl.style.display = 'flex';
-        codeTextEl.focus();
-        codeTextEl.select();
-        copyNote('');
-    }
-    document.getElementById('copyBtn').addEventListener('click', copyCode);
-    document.getElementById('codeSelBtn').addEventListener('click', () => {
-        codeTextEl.focus();
-        codeTextEl.select();
-        codeTextEl.setSelectionRange(0, codeTextEl.value.length);
-        try { document.execCommand('copy'); } catch (e) {}
-    });
-    document.getElementById('codeCloseBtn').addEventListener('click', () => { codeSheetEl.style.display = 'none'; });
-
     function setPenOnly(on) {
         penOnly = on;
         try { document.body.classList.toggle('penonly', on); } catch (e) {}
@@ -1746,7 +1668,7 @@ setInterval(setRealHeight, 500);   // adres çubuğu göster/gizle'de tetikle
             const k = sh.kicks[team][i];
             if (k === undefined) s += '○';
             else if (k) s += '<span style="color:#4ade80">●</span>';
-            else s += '<span style="color:#f87171">✕</span>';
+            else s += '<span style="color:#ef4444">●</span>';
         }
         return s;
     }
