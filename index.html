@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
-<title>Socer v1.1</title>
+<title>Socer v1.2</title>
 <style>
  html, body {
     margin: 0;
@@ -20,7 +20,7 @@
     -webkit-user-select: none;
     user-select: none;
 }
-  body {
+  body, #world {
     margin: 0;
     height: 100%;
     background:
@@ -44,6 +44,11 @@
   body {
     position: relative;
     overflow: hidden;
+}
+#world {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
 }
 
 .goal-top {
@@ -225,6 +230,8 @@
 /* === OYUNCU === */
 .player {
     position: absolute;
+    left: 0;
+    top: 0;
     width: 3.5vh;
     height: 3.5vh;
     background: #fd0013;
@@ -233,10 +240,14 @@
     box-sizing: border-box;
     transform: translate(-50%, -50%);
     z-index: 3;
-    will-change: left, top;
-    box-shadow: 0.3vh 0.4vh 0 0 rgba(0,0,0,0.5);}
+    will-change: transform;
+  box-shadow: 0.3vh 0.4vh 0 0 rgba(0,0,0,0.5);
+    }
+
 .player-blue {
     position: absolute;
+    left: 0;
+    top: 0;
     width: 3.5vh;
     height: 3.5vh;
     background: #3b82f6;
@@ -245,8 +256,10 @@
     box-sizing: border-box;
     transform: translate(-50%, -50%);
     z-index: 3;
-    will-change: left, top;
-    box-shadow: 0.3vh 0.4vh 0 0 rgba(0,0,0,0.5);}
+    will-change: transform;
+  box-shadow: 0.3vh 0.4vh 0 0 rgba(0,0,0,0.5);
+    }
+
 /* === JOYSTICK === */
 .joystick {
     position: fixed;
@@ -315,6 +328,8 @@
   }
 .ball {
     position: absolute;
+    left: 0;
+    top: 0;
     width: 2vh;
     height: 2vh;
     background: #ffffff;
@@ -323,8 +338,10 @@
     box-sizing: border-box;
     transform: translate(-50%, -50%);
     z-index: 2;
-    will-change: left, top;
-    box-shadow: 0.25vh 0.3vh 0 0 rgba(0,0,0,0.5);}
+    will-change: transform;
+  box-shadow: 0.25vh 0.3vh 0 0 rgba(0,0,0,0.5);
+    }
+
   /* === KÖŞE HITBOX (top için) === */
 .corner-hitbox {
     position: absolute;
@@ -393,14 +410,18 @@
   /* === KALECİLER === */
 .keeper {
     position: absolute;
+    left: 0;
+    top: 0;
     width: 3.5vh;
     height: 3.5vh;
     border-radius: 50%;
     box-sizing: border-box;
     transform: translate(-50%, -50%);
     z-index: 4;
-    will-change: left, top;
-    box-shadow: 0.3vh 0.4vh 0 0 rgba(0,0,0,0.5);}
+    will-change: transform;
+  box-shadow: 0.3vh 0.4vh 0 0 rgba(0,0,0,0.5);
+    }
+
 
 .keeper-top {
     background: #22c55e;
@@ -465,21 +486,39 @@
     width: 35%;
     height: 5vh;
     border-radius: 0.5vh;
-    background: rgba(0,0,0,0.5);
+    background: transparent;                 /* file kaldırıldı */
     z-index: 4;
     pointer-events: none;
 }
 
-.goal-shadow-top {
-    top: 0.8vh;
+.goal-shadow-top { top: 0.8vh; }
+.goal-shadow-bottom { bottom: -0.8vh; }
+
+/* Outline — kalenin tam kopyası */
+.goal-shadow::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 0.5vh solid rgba(0,0,0,0.5);
+    border-radius: 0.5vh;
+    box-sizing: border-box;
+    pointer-events: none;
 }
 
-.goal-shadow-bottom {
-    bottom: -0.8vh;
+/* File — outline'ın İÇİNDE (0.5vh boşlukla) */
+.goal-shadow::after {
+    content: '';
+    position: absolute;
+    inset: 0.5vh;                            /* outline kalınlığı kadar içeride */
+    background:
+        repeating-linear-gradient(45deg, rgba(0,0,0,0.5) 0px, rgba(0,0,0,0.5) 1px, transparent 1px, transparent 6px),
+        repeating-linear-gradient(-45deg, rgba(0,0,0,0.5) 0px, rgba(0,0,0,0.5) 1px, transparent 1px, transparent 6px);
+    border-radius: 0.2vh;
+    pointer-events: none;
 }
 .halftime {
     position: fixed;
-    top: 9vh;
+    top: 11vh;
     left: 1.5vh;
     color: #60d0ff;
     font-family: system-ui, sans-serif;
@@ -494,9 +533,292 @@
     display: none;
     letter-spacing: 0.1vh;
 }
+.scoreboard .diff-label {
+    color: #9ca3af;
+    font-size: 1.2vh;
+    font-weight: bold;
+    letter-spacing: 0.15vh;
+    width: 100%;
+    text-align: center;
+}
+
+/* === ZORLUK MENÜSÜ === */
+.menu {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.2vh;
+    padding: 3vh;
+    box-sizing: border-box;
+    background: rgba(6, 18, 10, 0.95);
+    color: #ffffff;
+    font-family: system-ui, sans-serif;
+    user-select: none;
+}
+.menu-title {
+    font-size: 6vh;
+    font-weight: 900;
+    letter-spacing: 0.6vh;
+}
+.menu-sub {
+    font-size: 2vh;
+    opacity: 0.7;
+    margin-bottom: 1vh;
+}
+.menu-btn {
+    width: 100%;
+    max-width: 46vh;
+    padding: 1.8vh 2vh;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1vh;
+    font-family: inherit;
+    font-size: 2.4vh;
+    font-weight: bold;
+    color: #ffffff;
+    border: 0.3vh solid rgba(255, 255, 255, 0.3);
+    border-radius: 1.2vh;
+    cursor: pointer;
+    touch-action: manipulation;
+    text-align: left;
+}
+.menu-btn small {
+    font-size: 1.4vh;
+    font-weight: normal;
+    opacity: 0.85;
+    text-align: right;
+}
+.menu-btn.last {
+    border-color: #ffffff;
+}
+.menu-btn:active {
+    transform: scale(0.98);
+}
+
+/* === ANA MENÜ / MAÇ İÇİ MENÜ / UYARI === */
+.menu-top {
+    position: fixed;
+    top: 1.5vh;
+    right: 1.5vh;
+    z-index: 200;
+    padding: 0.9vh 1.4vh;
+    font-family: system-ui, sans-serif;
+    font-size: 1.8vh;
+    font-weight: bold;
+    letter-spacing: 0.1vh;
+    color: #ffffff;
+    background: rgba(0, 0, 0, 0.7);
+    border: 0.2vh solid rgba(255, 255, 255, 0.3);
+    border-radius: 0.8vh;
+    cursor: pointer;
+    touch-action: manipulation;
+    user-select: none;
+}
+.menu-top:active { transform: scale(0.95); }
+.main-menu {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.6vh;
+    padding: 3vh;
+    box-sizing: border-box;
+    background: rgba(6, 18, 10, 0.97);
+    color: #ffffff;
+    font-family: system-ui, sans-serif;
+    user-select: none;
+}
+.main-menu .menu-title { margin-bottom: 3vh; }
+.big-btn {
+    width: 100%;
+    max-width: 38vh;
+    padding: 2vh 2vh;
+    font-family: inherit;
+    font-size: 2.6vh;
+    font-weight: bold;
+    letter-spacing: 0.2vh;
+    color: #ffffff;
+    background: #fd0013;
+    border: 0.3vh solid #ffffff;
+    border-radius: 1.2vh;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.big-btn.alt { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.45); }
+.big-btn:active { transform: scale(0.97); }
+.help-box {
+    display: none;
+    max-width: 44vh;
+    font-size: 2vh;
+    line-height: 1.5;
+    text-align: left;
+    background: rgba(255,255,255,0.08);
+    border-radius: 1.2vh;
+    padding: 2vh;
+}
+.help-box b { color: #fbbf24; }
+.confirm {
+    position: fixed;
+    inset: 0;
+    z-index: 10001;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 3vh;
+    box-sizing: border-box;
+    background: rgba(0, 0, 0, 0.78);
+    font-family: system-ui, sans-serif;
+    color: #ffffff;
+    user-select: none;
+}
+.confirm-box {
+    width: 100%;
+    max-width: 42vh;
+    display: flex;
+    flex-direction: column;
+    gap: 1.8vh;
+    align-items: center;
+    text-align: center;
+    padding: 3vh 2.4vh;
+    background: #101a14;
+    border: 0.3vh solid rgba(255,255,255,0.4);
+    border-radius: 1.6vh;
+}
+.confirm-title { font-size: 3vh; font-weight: 900; color: #fbbf24; }
+.confirm-text { font-size: 2vh; line-height: 1.4; opacity: 0.9; }
+
+/* === İKİ OYUNCULU MOD === */
+.joystick.p2, .shoot-btn.p2 { display: none; }
+body.twop .joystick.p2, body.twop .shoot-btn.p2 { display: block; }
+.joystick.p2 { top: 5vh; right: 5vh; left: auto; bottom: auto; }
+.shoot-btn.p2 { top: 5vh; left: 5vh; right: auto; bottom: auto; }   /* kırmızı, kırmızı oyuncununkiyle aynı */
+
+/* Skorbord + menü butonu: sol kenarın ortasında, sahaya doğru dikey (yazılar 90° döner) */
+#sideHud { display: contents; }
+body.twop #sideHud {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.4vh;
+    position: fixed;
+    left: 1vh;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 200;
+}
+body.twop .scoreboard,
+body.twop .menu-top {
+    position: static;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);   /* yazılar aşağıdan yukarı okunur */
+}
+body.twop .menu-top:active { transform: rotate(180deg) scale(0.95); }
+body.twop .scoreboard { transform: rotate(180deg); }
+body.twop .scoreboard { flex-direction: column; padding: 1vh 0.5vh; }
+body.twop .scoreboard .score-row { width: auto; }
+body.twop .scoreboard .timer {
+    width: auto;
+    border-top: none;
+    padding-top: 0;
+    border-right: 0.15vh solid rgba(255, 255, 255, 0.2);
+    padding-right: 0.4vh;
+}
+body.twop .menu-top { padding: 1.4vh 0.9vh; }
+body.twop .halftime, body.twop .pen-panel {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%) rotate(180deg);
+    writing-mode: vertical-rl;
+    white-space: nowrap;
+}
+body.twop .halftime { left: calc(100% + 1vh); }
+body.twop .pen-panel { left: calc(100% + 5.5vh); }
+body.twop .diff-label { display: none; }
+body.penonly .scoreboard .timer { display: none; }
+
+/* === SÜRÜM / KOD KOPYALAMA === */
+.menu-ver { margin-top: -2.6vh; margin-bottom: 2vh; font-size: 2vh; font-weight: bold; letter-spacing: 0.3vh; color: #fbbf24; }
+.copy-note { min-height: 2.4vh; font-size: 1.7vh; opacity: 0.9; text-align: center; max-width: 40vh; }
+.code-sheet {
+    position: fixed; inset: 0; z-index: 10002; display: none; flex-direction: column;
+    gap: 1.2vh; padding: 2vh; box-sizing: border-box; background: rgba(0, 0, 0, 0.92);
+    color: #ffffff; font-family: system-ui, sans-serif;
+}
+.code-sheet textarea {
+    flex: 1; width: 100%; box-sizing: border-box; background: #0b130e; color: #d6ffe3;
+    border: 0.2vh solid rgba(255,255,255,0.35); border-radius: 1vh; padding: 1vh;
+    font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 1.4vh; white-space: pre;
+}
+.code-sheet .row { display: flex; gap: 1vh; }
+.code-sheet .row button { flex: 1; padding: 1.6vh; font-size: 2vh; font-weight: bold; border-radius: 1vh; border: 0.2vh solid #fff; color: #fff; background: #15803d; }
+.code-sheet .row button.alt { background: rgba(255,255,255,0.12); }
+
+/* === PENALTI PANELİ === */
+.pen-panel {
+    position: fixed;
+    top: 15vh;
+    left: 1.5vh;
+    z-index: 200;
+    display: none;
+    padding: 0.6vh 0.9vh;
+    background: rgba(0, 0, 0, 0.7);
+    border: 0.2vh solid rgba(255, 255, 255, 0.3);
+    border-radius: 0.8vh;
+    color: #ffffff;
+    font-family: system-ui, sans-serif;
+    font-size: 1.9vh;
+    font-weight: bold;
+    letter-spacing: 0.25vh;
+    user-select: none;
+}
+.pen-panel .pen-row {
+    display: flex;
+    align-items: center;
+    gap: 0.8vh;
+    white-space: nowrap;
+}
+.pen-panel .team-box {
+    width: 1.5vh;
+    height: 1.5vh;
+    border-radius: 0.4vh;
+    display: inline-block;
+}
+.banner {
+    position: fixed;
+    left: 50%;
+    top: 40vh;
+    transform: translateX(-50%);
+    z-index: 300;
+    display: none;
+    pointer-events: none;
+    white-space: nowrap;
+    font-family: system-ui, sans-serif;
+    font-size: 6.5vh;
+    font-weight: 900;
+    letter-spacing: 0.5vh;
+    text-shadow: 0 0.4vh 0 rgba(0, 0, 0, 0.6);
+}
+.aim-line {
+    position: absolute;
+    display: none;
+    height: 0;
+    border-top: 0.45vh dotted rgba(255, 255, 255, 0.9);
+    transform-origin: 0 50%;
+    pointer-events: none;
+    z-index: 6;
+}
 </style>
 </head>
 <body>
+<div id="sideHud">
 <div class="scoreboard">
     <div class="score-row">
         <span class="team-box" style="background:#fd0013"></span>
@@ -507,8 +829,56 @@
     </div> 
 <div class="timer">
     <span id="timerSec">00</span><span style="opacity:0.5">:</span><span id="timerMs">00</span>
-</div> </div>
+</div>
+<div class="diff-label" id="diffLabel"></div>
+</div>
   <div class="halftime" id="halftime">devre arası 00</div>
+<div class="pen-panel" id="penPanel"></div>
+<button class="menu-top" id="menuBtn">☰ MENÜ</button>
+</div>
+<div class="banner" id="banner"></div>
+<div class="code-sheet" id="codeSheet">
+    <div id="codeMsg" style="font-size:1.8vh">Kod otomatik kopyalanamadı. Aşağıdaki metni seçip kopyala:</div>
+    <textarea id="codeText" readonly></textarea>
+    <div class="row"><button id="codeSelBtn">TÜMÜNÜ SEÇ / KOPYALA</button><button class="alt" id="codeCloseBtn">KAPAT</button></div>
+</div>
+<div class="confirm" id="confirm">
+    <div class="confirm-box">
+        <div class="confirm-title">⚠ DİKKAT</div>
+        <div class="confirm-text">Menüye dönersen devam eden maç iptal edilir ve skor kaybolur. Emin misin?</div>
+        <button class="big-btn" id="confirmNo">MAÇA DEVAM ET</button>
+        <button class="big-btn alt" id="confirmYes">MENÜYE DÖN</button>
+    </div>
+</div>
+<div class="main-menu" id="mainMenu">
+    <div class="menu-title">SOCER</div>
+    <div class="menu-ver">v1.2</div>
+    <button class="big-btn" id="playBtn">HIZLI MAÇ</button>
+    <button class="big-btn" id="twoBtn" style="background:#2563eb">İKİ OYUNCULU</button>
+    <button class="big-btn" id="penModeBtn" style="background:#15803d">PENALTILAR</button>
+    <button class="big-btn alt" id="helpBtn">NASIL OYNANIR</button>
+    <button class="big-btn alt" id="copyBtn" style="font-size:2vh;padding:1.4vh 2vh">&lt;/&gt; KODU KOPYALA</button>
+    <div class="copy-note" id="copyNote"></div>
+    <div class="help-box" id="helpBox">
+        <b>Hızlı maç:</b> <b>joystick</b> ile hareket et, <b>şut butonu</b> ile vur. Kırmızı sensin, mavi bilgisayar; zorluğu sen seçersin.<br>
+        <b>İki oyunculu:</b> altta kırmızı oyuncunun, üstte mavi oyuncunun joystick ve şut butonu var.<br>
+        <b>Penaltılar:</b> sadece penaltı atışları; tek kişi (bilgisayara karşı) ya da iki kişi oynanır.<br>
+        Maç 2×45 dk; berabere kalırsa 2×15 dk uzatma, sonra penaltılar.<br>
+        Maçta sağ üstteki <b>MENÜ</b> butonu ile ana menüye dönebilirsin.
+    </div>
+</div>
+<div class="main-menu" id="penMenu">
+    <div class="menu-title" style="font-size:4.6vh">PENALTILAR</div>
+    <button class="big-btn" id="penOneBtn">TEK KİŞİ<br><small style="font-weight:normal;font-size:1.6vh">bilgisayara karşı · zorluk seç</small></button>
+    <button class="big-btn" id="penTwoBtn" style="background:#2563eb">İKİ KİŞİ</button>
+    <button class="big-btn alt" id="penBackBtn" style="font-size:2vh;padding:1.4vh 2vh">← ANA MENÜ</button>
+</div>
+<div class="menu" id="menu">
+    <div class="menu-title">SOCER</div>
+    <div class="menu-sub">zorluk seç</div>
+</div>
+<div id="world">
+<div class="aim-line" id="aimLine"></div>
 <div class="goal-shadow goal-shadow-top"></div>
 <div class="goal-shadow goal-shadow-bottom"></div>
 <div class="goal-top"></div>
@@ -526,10 +896,6 @@
 <div class="penalty-arc penalty-arc-bottom"></div>
 <div class="player" id="player"></div>
   <div class="player-blue" id="playerBlue"></div>
-<div class="joystick" id="joystick">
-    <div class="joystick-knob" id="joystickKnob"></div>
-</div>
-   <button class="shoot-btn" id="shootBtn"></button>
   <!-- Üst kale direkleri -->
 <div class="post post-tl"></div>
 <div class="post post-tr"></div>
@@ -544,11 +910,25 @@
   <div class="keeper keeper-top" id="keeperTop"></div>
 <div class="keeper keeper-bottom" id="keeperBottom"></div>
   <div class="ball" id="ball"></div>
+</div>
+<div class="joystick" id="joystick">
+    <div class="joystick-knob" id="joystickKnob"></div>
+</div>
+   <button class="shoot-btn" id="shootBtn"></button>
+<div class="joystick p2" id="joystick2">
+    <div class="joystick-knob" id="joystickKnob2"></div>
+</div>
+<button class="shoot-btn p2" id="shootBtn2"></button>
   
 <script>
+  
   // Chrome adres çubuğu düzeltmesi
+let lastRealH = 0;
 function setRealHeight() {
-    document.documentElement.style.setProperty('--vh', window.innerHeight * 0.01 + 'px');
+    const h = window.innerHeight;
+    if (h === lastRealH) return;   // değişmediyse stil yeniden hesaplanmasın
+    lastRealH = h;
+    document.documentElement.style.setProperty('--vh', h * 0.01 + 'px');
 }
 setRealHeight();
 window.addEventListener('resize', setRealHeight);
@@ -562,6 +942,9 @@ setInterval(setRealHeight, 500);   // adres çubuğu göster/gizle'de tetikle
     const ball = document.getElementById('ball');
     const cornerHitboxes = document.querySelectorAll('.corner-hitbox');
     const shootBtn = document.getElementById('shootBtn');
+    const joystick2 = document.getElementById('joystick2');
+    const knob2 = document.getElementById('joystickKnob2');
+    const shootBtn2 = document.getElementById('shootBtn2');
     const keeperTop = document.getElementById('keeperTop');
     const keeperBottom = document.getElementById('keeperBottom');
     const scoreBlueEl = document.getElementById('scoreBlue');
@@ -569,23 +952,146 @@ setInterval(setRealHeight, 500);   // adres çubuğu göster/gizle'de tetikle
     const playerBlue = document.getElementById('playerBlue');
     const timerMsEl = document.getElementById('timerMs');
     const timerSecEl = document.getElementById('timerSec');
-const halftimeEl = document.getElementById('halftime');
+    const halftimeEl = document.getElementById('halftime');
+    const diffLabelEl = document.getElementById('diffLabel');
+    const menuEl = document.getElementById('menu');
+    const mainMenuEl = document.getElementById('mainMenu');
+    const confirmEl = document.getElementById('confirm');
+    const menuBtnEl = document.getElementById('menuBtn');
+    const penMenuEl = document.getElementById('penMenu');
+    const penPanelEl = document.getElementById('penPanel');
+    const bannerEl = document.getElementById('banner');
+    const aimLineEl = document.getElementById('aimLine');
+    const worldEl = document.getElementById('world');
 
-  let halftimeBotDelay = 0;   // mola saniyesi
-let halftimeBotTarget = { x: 50, y: 50 };   // dolaşma hedefi
-let halftimeBotTimer = 0;   // hedef değişim sayacı
-  let firstHalfKickoffTeam = 'red';
-let halftimeStartTime = 0;
-  let halftimeCountdown = 0;   // mola sayacı (saniye)
-let halftimeActive = false;  // mola aktif mi?
-let gameOver = false;
-  
-  let waitingKickoff = false;   // 2. yarı santrası bekleniyor
-let waitingSecondHalf = false;
-  let currentHalf = 1;
-    let matchStartTime = 0;
-    let matchTime = 90;
-    let matchRunning = false;
+    // === ÖLÇÜMLER ===
+    // Düzen (layout) bilgisi kare içinde okunmaz; açılışta ve ekran boyutu değişince
+    // bir kez ölçülüp saklanır. Bu, takılmaların ana sebebiydi.
+    let VW = window.innerWidth, VH = window.innerHeight;
+    let ballSize = 0, playerSize = 0, keeperSize = 0;
+    let postRects = [], cornerRects = [];
+    let lastMsT = '', lastSecT = '', lastSecW = '', lastTimerWrite = 0;
+    function measure() {
+        VW = window.innerWidth;
+        VH = window.innerHeight;
+        ballSize = ball.offsetWidth;
+        playerSize = player.offsetWidth;
+        keeperSize = keeperTop.offsetWidth;
+        const w = worldEl.getBoundingClientRect();   // titreme sırasında da doğru ölçmek için dünyaya göre
+        const rel = el => {
+            const r = el.getBoundingClientRect();
+            return { left: r.left - w.left, right: r.right - w.left, top: r.top - w.top, bottom: r.bottom - w.top };
+        };
+        postRects = Array.from(posts, rel);
+        cornerRects = Array.from(cornerHitboxes, rel);
+    }
+    window.addEventListener('resize', measure);
+    window.addEventListener('orientationchange', measure);
+    setInterval(() => {
+        if (window.innerWidth !== VW || window.innerHeight !== VH) measure();
+    }, 500);   // adres çubuğu göster/gizle'de de yeniden ölç
+
+    // Tüm hareketli elemanlar transform ile konumlanır (düzen hesabı gerektirmez)
+    function place(el, x, y) {
+        el.style.transform = 'translate3d(' + (x * VW / 100).toFixed(2) + 'px,' + (y * VH / 100).toFixed(2) + 'px,0) translate(-50%,-50%)';
+    }
+    function render() {
+        place(ball, ballX, ballY);
+        place(player, playerX, playerY);
+        place(playerBlue, playerBlueX, playerBlueY);
+        place(keeperTop, ktX, ktY);
+        place(keeperBottom, kbX, kbY);
+    }
+
+    // === ZORLUK SEVİYELERİ ===
+    // NORMAL = oyunun ilk hali (klasik maç sistemi)
+    // blueSpeed        : rakip oyuncunun hızı
+    // aimOffset/aimErr : rakibin şut isabeti (kaleciden uzak köşeye / rastgele sapma)
+    // ktSkill/kbSkill  : üst (rakip) ve alt (senin) kalecinin hızı
+    // ktPass/kbPass    : kalecinin hızlı topu kaçırma ihtimali
+    // penBotAim        : rakibin penaltıda köşeye uzaklığı (kale ortasından, % genişlik; direk 17.5'te)
+    // penBotCenter     : rakibin köşe yerine ortaya (0-4) nişan alma ihtimali
+    // penBotMiss       : rakibin penaltıyı dışarı atma ihtimali
+    // rivalReach/Smart : sen penaltı atarken kalecinin atlama mesafesi / atışı okuma ihtimali
+    // ownReach/Smart   : rakip penaltı atarken senin kalecin için aynısı
+    const DIFFICULTIES = [
+        { name: 'ÇOK KOLAY', hint: 'rakip yavaş ve isabetsiz', hue: 140,
+          blueSpeed: 0.20, aimOffset: 0, aimErr: 26, ktSkill: 0.6, kbSkill: 1.4, ktPass: 0.50, kbPass: 0.10,
+          penBotAim: [8, 15.5], penBotCenter: 0, penBotMiss: 0.3, rivalReach: 11, rivalSmart: 0, ownReach: 11, ownSmart: 0.35 },
+        { name: 'KOLAY', hint: 'rahat bir maç', hue: 100,
+          blueSpeed: 0.25, aimOffset: 0, aimErr: 16, ktSkill: 0.8, kbSkill: 1.2, ktPass: 0.40, kbPass: 0.18,
+          penBotAim: [8, 15.5], penBotCenter: 0, penBotMiss: 0.2, rivalReach: 11, rivalSmart: 0, ownReach: 11, ownSmart: 0.15 },
+        { name: 'NORMAL', hint: 'klasik maç', hue: 55,
+          blueSpeed: 0.30, aimOffset: 0, aimErr: 0, ktSkill: 1.0, kbSkill: 1.0, ktPass: 0.30, kbPass: 0.30,
+          penBotAim: [10, 15.5], penBotCenter: 0.3, penBotMiss: 0.12, rivalReach: 11, rivalSmart: 0.05, ownReach: 11, ownSmart: 0.1 },
+        { name: 'ZOR', hint: 'hızlı rakip, iyi kaleci', hue: 30,
+          blueSpeed: 0.35, aimOffset: 4, aimErr: 0, ktSkill: 1.2, kbSkill: 0.9, ktPass: 0.24, kbPass: 0.36,
+          penBotAim: [10, 15.5], penBotCenter: 0.6, penBotMiss: 0.08, rivalReach: 11, rivalSmart: 0.15, ownReach: 11, ownSmart: 0 },
+        { name: 'ÇOK ZOR', hint: 'rakip köşeleri buluyor', hue: 10,
+          blueSpeed: 0.40, aimOffset: 7, aimErr: 0, ktSkill: 1.4, kbSkill: 0.8, ktPass: 0.18, kbPass: 0.42,
+          penBotAim: [8, 15.5], penBotCenter: 0.8, penBotMiss: 0.05, rivalReach: 11, rivalSmart: 0.3, ownReach: 11, ownSmart: 0 },
+        { name: 'EFSANE', hint: 'neredeyse yenilmez', hue: 350,
+          blueSpeed: 0.45, aimOffset: 10, aimErr: 0, ktSkill: 1.7, kbSkill: 0.7, ktPass: 0.12, kbPass: 0.48,
+          penBotAim: [4, 15.5], penBotCenter: 1.0, penBotMiss: 0.03, rivalReach: 11, rivalSmart: 0.45, ownReach: 11, ownSmart: 0 }
+    ];
+    let diffIndex = 2;
+    let diff = DIFFICULTIES[diffIndex];
+    let menuActive = true;
+    let penOnly = false;         // sadece penaltı atışları modu
+    let twoP = false;            // iki oyunculu mod
+    let celeb = null;            // bot gol sonrası koşacağı köşe
+    let paused = false;          // uyarı ekranı açıkken oyun durur
+    let pauseStartedAt = 0;
+    const menuButtons = [];
+
+    // === MAÇ SÜRESİ SİSTEMİ ===
+    // period: 0 = 1. yarı, 1 = 2. yarı, 2 = uzatma 1. yarı, 3 = uzatma 2. yarı
+    const PERIOD_LEN   = [45, 45, 15, 15];   // her devrenin süresi (saniye)
+    const PERIOD_START = [0, 45, 90, 105];   // sayaçta görünen başlangıç değeri
+    // Ara türleri: half = devre arası (15 sn), extraHalf = uzatma arası (15 sn),
+    // preExtra = normal süre → uzatma geçişi (5 sn), prePens = uzatma → penaltı geçişi (5 sn)
+    const BREAK_LABELS = {
+        half: 'devre arası ',
+        extraHalf: 'uzatma arası ',
+        preExtra: 'uzatma öncesi ',
+        prePens: 'penaltılar öncesi '
+    };
+    let breakKind = 'half';
+    let breakLen = 15;
+
+    // === PENALTI ATIŞLARI ===
+    let shootoutActive = false;
+    let sh = null;                 // penaltı serisinin durumu
+    let bannerTimer = null;
+
+    let period = 0;
+    let periodElapsed = 0;       // bu devrede oynanan süre
+    let periodEnding = false;    // süre doldu → top orta çizgiden geçince devre biter
+    let periodFresh = true;      // devrenin ilk santrası henüz atılmadı
+    let halfKickoffTeam = 'red'; // bu devreyi başlatan takım
+    let lastTick = performance.now();
+    let noticeTimer = null;
+
+    let halftimeActive = false;
+
+    // === GOL ANI ===
+    // Akan oyunda (normal süre ve uzatma) gol olunca: "GOL!" 2 sn görünür, kamera titrer,
+    // santra gol anından 4 sn sonra kurulur. Bu sürede top oyun dışıdır, saat durur.
+    const GOAL_BANNER_SEC = 2;
+    const GOAL_PAUSE_SEC = 4;
+    let goalPause = false;
+    let goalTimer = 0;
+
+    // Süre dolunca top orta çizgiyi geçene kadar beklenir; en fazla bu kadar sn
+    const PERIOD_END_MAX = 5;
+    let periodEndWait = 0;
+
+    // Kamera titremesi
+    let shakeT = 0, shakeDur = 2, shakeAmp = 0;
+    let halftimeStartTime = 0;
+    let halftimeBotTarget = { x: 50, y: 50 };
+    let halftimeBotTimer = 0;
+    let gameOver = false;
     let matchStarted = false;
 
     let kickoffTaken = false;
@@ -613,68 +1119,119 @@ let waitingSecondHalf = false;
     let ballY = 50;
     let ballVX = 0;
     let ballVY = 0;
-    ball.style.left = ballX + '%';
-    ball.style.top  = ballY + '%';
 
     let playerX = 50;
     let playerY = 60;
 
-    let joyX = 0;
-    let joyY = 0;
-    let joyActive = false;
-    let joyCenterX = 0;
-    let joyCenterY = 0;
+    // === JOYSTICK (iki oyuncu için ayrı örnek) ===
+    function makeJoy(el, knobEl) {
+        const j = { x: 0, y: 0, active: false, cx: 0, cy: 0 };
+        j.move = function (e) {
+            if (!j.active) return;
+            let dx = e.clientX - j.cx;
+            let dy = e.clientY - j.cy;
+            const maxR = el.offsetWidth * 0.35;
+            const dist = Math.hypot(dx, dy);
+            if (dist > maxR) {
+                dx = (dx / dist) * maxR;
+                dy = (dy / dist) * maxR;
+            }
+            knobEl.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+            j.x = dx / maxR;
+            j.y = dy / maxR;
+            e.preventDefault();
+        };
+        j.start = function (e) {
+            j.active = true;
+            const rect = el.getBoundingClientRect();
+            j.cx = rect.left + rect.width / 2;
+            j.cy = rect.top + rect.height / 2;
+            j.move(e);
+        };
+        j.end = function () {
+            j.active = false;
+            j.x = 0;
+            j.y = 0;
+            knobEl.style.transform = 'translate(-50%, -50%)';
+        };
+        el.addEventListener('pointerdown', j.start);
+        el.addEventListener('pointermove', j.move);
+        el.addEventListener('pointerup', j.end);
+        el.addEventListener('pointercancel', j.end);
+        window.addEventListener('mousemove', j.move);
+        window.addEventListener('mouseup', j.end);
+        return j;
+    }
+    const J1 = makeJoy(joystick, knob);      // kırmızı (alt)
+    const J2 = makeJoy(joystick2, knob2);    // mavi (üst, iki oyunculu modda)
+    function joyEnd() { J1.end(); J2.end(); }
 
-    function joyStart(e) {
-        joyActive = true;
-        const rect = joystick.getBoundingClientRect();
-        joyCenterX = rect.left + rect.width / 2;
-        joyCenterY = rect.top + rect.height / 2;
-        joyMove(e);
+    function pad2(n) {
+        return String(n).padStart(2, '0');
     }
 
-    function joyMove(e) {
-        if (!joyActive) return;
-        let dx = e.clientX - joyCenterX;
-        let dy = e.clientY - joyCenterY;
-        const maxR = joystick.offsetWidth * 0.35;
-        const dist = Math.hypot(dx, dy);
+    // === SAYAÇ GÖSTERGESİ ===
+    function updateTimer() {
+        const elapsed = PERIOD_START[period] + Math.min(periodElapsed, PERIOD_LEN[period]);
+        const sec = Math.floor(elapsed);
+        const ms = Math.floor((elapsed - sec) * 100);
 
-        if (dist > maxR) {
-            dx = (dx / dist) * maxR;
-            dy = (dy / dist) * maxR;
+        const msT = pad2(ms), secT = pad2(sec);
+        // Yüzde saniye hanesi 60 kare/sn'den hızlı değiştiği için her karede düzen
+        // hesabı yaptırıyordu; saniye değişince hemen, yüzdelik hane ~20 Hz yazılır.
+        const nowW = performance.now();
+        if (secT !== lastSecT) { timerSecEl.textContent = secT; lastSecT = secT; }
+        if (msT !== lastMsT && (nowW - lastTimerWrite > 45 || secT !== lastSecW)) {
+            timerMsEl.textContent = msT; lastMsT = msT; lastTimerWrite = nowW;
         }
-
-        knob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
-        joyX = dx / maxR;
-        joyY = dy / maxR;
-        e.preventDefault();
+        lastSecW = secT;
     }
 
-    function joyEnd() {
-        joyActive = false;
-        joyX = 0;
-        joyY = 0;
-        knob.style.transform = 'translate(-50%, -50%)';
+    // Kısa süreli bilgi yazısı (ör. "uzatmalar başlıyor")
+    function showNotice(text, ms) {
+        clearTimeout(noticeTimer);
+        halftimeEl.textContent = text;
+        halftimeEl.style.display = 'block';
+        noticeTimer = setTimeout(() => {
+            if (!halftimeActive) halftimeEl.style.display = 'none';
+        }, ms);
     }
 
-    joystick.addEventListener('pointerdown', joyStart);
-    joystick.addEventListener('pointermove', joyMove);
-    joystick.addEventListener('pointerup', joyEnd);
-    joystick.addEventListener('pointercancel', joyEnd);
-    window.addEventListener('mousemove', joyMove);
-    window.addEventListener('mouseup', joyEnd);
+    // === İLK SANTRA ATILINCA MAÇ BAŞLAR ===
+    function startMatch() {
+        matchStarted = true;
+        period = 0;
+        periodElapsed = 0;
+        periodEnding = false;
+        lastTick = performance.now();
+        updateTimer();
+    }
+
+    // === SANTRA ATILDI (şut, oyuncu veya rakip topa dokununca) ===
+    function onKickoffTaken() {
+        if (!isRestarting) return;
+        kickoffTaken = true;
+        isRestarting = false;
+
+        if (periodFresh) {
+            halfKickoffTeam = restartTeam;   // devreyi gerçekten başlatan takım
+            periodFresh = false;
+        }
+        if (!matchStarted) startMatch();
+    }
 
     // === ŞUT ===
-    function shoot() {
-    if (halftimeActive || gameOver) return;
+    function shootFor(team) {
+        if (menuActive || paused || halftimeActive || goalPause || gameOver) return;
 
-    const dx = ballX - playerX;
-        const dy = ballY - playerY;
-        const dist = Math.hypot(dx, dy);
+        const px = team === 'red' ? playerX : playerBlueX;
+        const py = team === 'red' ? playerY : playerBlueY;
+        const dx = ballX - px;
+        const dy = ballY - py;
+        const dist = Math.hypot(dx, dy) || 0.0001;
 
         const now = performance.now();
-        if (now - redLastShootTime < 500) return;
+        if (now - (team === 'red' ? redLastShootTime : blueLastShootTime) < 500) return;
 
         if (dist < 6) {
             const dirX = dx / dist;
@@ -684,110 +1241,24 @@ let waitingSecondHalf = false;
             ballVX = dirX * power;
             ballVY = dirY * power;
 
-            redLastShootTime = now;
+            if (team === 'red') redLastShootTime = now; else blueLastShootTime = now;
 
-            if (isRestarting) {
-    kickoffTaken = true;
-    isRestarting = false;
-
-    if (!matchStarted) {
-        startMatch();
-    } else if (waitingKickoff) {
-        // 2. yarı santra atıldı → süre devam
-        waitingKickoff = false;
-        waitingSecondHalf = false;
-        matchStartTime = performance.now() - (90 - matchTime) * 1000;
-    }
-}
+            onKickoffTaken();
+            shootoutKickUsed(team, true);   // penaltıda şut = penaltı kullanıldı (uçuştaysa çift dokunuş)
         }
     }
-
-    function updateTimer() {
-        const elapsed = 90 - matchTime;
-        const sec = Math.floor(elapsed);
-        const ms = Math.floor((elapsed - sec) * 100);
-
-        timerMsEl.textContent = String(ms).padStart(2, '0');
-        timerSecEl.textContent = String(sec).padStart(2, '0');
-    }
-
-function startMatch() {
-    matchTime = 90;
-    matchRunning = true;
-    matchStarted = true;
-    currentHalf = 1;
-    waitingSecondHalf = false;
-    matchStartTime = performance.now();
-    updateTimer();
-}
-
-function endMatch() {
-    matchRunning = false;
-    isRestarting = false;
-  gameOver = true;
-        let message = '';
-if (scoreRed > scoreBlue) message = 'KAZANDIN';
-else if (scoreBlue > scoreRed) message = 'KAYBETTİN';
-else message = 'BERABERE';
-  
-        const endScreen = document.createElement('div');
-        endScreen.style.cssText = `
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.85);
-            color: #fff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            font-family: system-ui, sans-serif;
-            z-index: 9999;
-            gap: 3vh;
-        `;
-        endScreen.innerHTML = `
-            <div style="font-size:5vh;font-weight:bold;">${message}</div>
-            <div style="font-size:3vh;">${scoreRed} - ${scoreBlue}</div>
-            <button id="restartBtn" style="
-                padding: 2vh 4vh;
-                font-size: 2.5vh;
-                background: #fd0013;
-                color: #fff;
-                border: 0.3vh solid #fff;
-                border-radius: 1vh;
-                font-weight: bold;
-                cursor: pointer;
-            ">TEKRAR OYNA</button>
-        `;
-        document.body.appendChild(endScreen);
-
-      document.getElementById('restartBtn').addEventListener('click', () => {
-    endScreen.remove();
-    scoreRed = 0;
-    scoreBlue = 0;
-    scoreRedEl.textContent = 0;
-    scoreBlueEl.textContent = 0;
-    matchStarted = false;
-    matchTime = 90;
-    matchRunning = false;
-    currentHalf = 1;
-    waitingSecondHalf = false;
-    isRestarting = false;
-    kickoffTaken = false;
-    gameOver = false;   // ← EKLE
-    updateTimer();
-    restartTeam = Math.random() < 0.5 ? 'red' : 'blue';
-firstHalfKickoffTeam = restartTeam;
-startRestart();
-});
-    }
+    function shoot() { shootFor('red'); }
 
     // === SANTRA BAŞLAT ===
-function startRestart() {
-    isRestarting = true;
-    kickoffTaken = false;
-    restartTimer = 300;
+    function startRestart() {
+        isRestarting = true;
+        kickoffTaken = false;
+        restartTimer = 300;
 
-    ball.style.display = 'block';   // ← EKLE (top her santrada görünür)
+        ball.style.display = 'block';
+        ball.style.visibility = 'visible';   // moladan sonra top tekrar görünür
+        ktHasBall = false;
+        kbHasBall = false;
 
         ballX = 50; ballY = 50;
         ballVX = 0; ballVY = 0;
@@ -804,122 +1275,813 @@ function startRestart() {
         kbX = 50; kbY = 88;
     }
 
+    // === DEVRE ARASI BAŞLAT ===
+    // Oyuncular serbest dolaşır. Top oyun dışıdır (gizli), santraya gelmez
+    // ve kimseyle etkileşmez. Santra sadece mola bitince kurulur.
+    function startBreak(kind) {
+        breakKind = kind;
+        breakLen = (kind === 'preExtra' || kind === 'prePens') ? 5 : 15;
+
+        clearTimeout(noticeTimer);
+        halftimeActive = true;
+        halftimeStartTime = performance.now();
+        isRestarting = false;
+        kickoffTaken = false;
+        ktHasBall = false;
+        kbHasBall = false;
+        halftimeBotTimer = 0;
+
+        ballVX = 0; ballVY = 0;
+        ballX = 50; ballY = 50;
+        ball.style.visibility = 'hidden';
+
+        halftimeEl.style.display = 'block';
+        halftimeEl.textContent = BREAK_LABELS[kind] + pad2(breakLen);
+    }
+
+    // === ARA BİTTİ → sonraki devrenin santrası / uzatmalar / penaltılar ===
+    function endBreak() {
+        halftimeActive = false;
+        halftimeEl.style.display = 'none';
+
+        if (breakKind === 'preExtra') {
+            startExtraTime();
+            return;
+        }
+        if (breakKind === 'prePens') {
+            startShootout();
+            return;
+        }
+
+        period++;
+        periodElapsed = 0;
+        periodEnding = false;
+        periodFresh = true;
+        updateTimer();
+
+        // Devreyi önceki devreyi başlatmayan takım başlatır
+        restartTeam = (halfKickoffTeam === 'red') ? 'blue' : 'red';
+        startRestart();
+    }
+
+    // === UZATMALAR ===
+    function startExtraTime() {
+        period = 2;
+        periodElapsed = 0;
+        periodEnding = false;
+        periodFresh = true;
+        updateTimer();
+
+        restartTeam = Math.random() < 0.5 ? 'red' : 'blue';
+        halfKickoffTeam = restartTeam;
+        startRestart();
+
+        showNotice('uzatmalar başlıyor', 2500);
+    }
+
+    // Süre doldu ve top orta çizgiden geçti
+    function finishPeriod() {
+        periodEnding = false;
+        periodEndWait = 0;
+        halftimeEl.style.display = 'none';   // "süre doldu" yazısı
+
+        if (period === 0) {
+            startBreak('half');        // devre arası
+        } else if (period === 2) {
+            startBreak('extraHalf');   // uzatma arası
+        } else {
+            endMatch();                // 90. dk veya uzatma sonu
+        }
+    }
+
+    function winText(winner) {
+        if (twoP) return winner === 'red' ? 'KIRMIZI KAZANDI' : 'MAVİ KAZANDI';
+        return winner === 'red' ? 'KAZANDIN' : 'KAYBETTİN';
+    }
+
+    function endMatch() {
+        const tied = scoreRed === scoreBlue;
+
+        // Normal süre berabere → 5 sn ara, sonra uzatmalar
+        if (period === 1 && tied) {
+            startBreak('preExtra');
+            return;
+        }
+        // Uzatmalar da berabere → 5 sn ara, sonra penaltı atışları
+        if (period === 3 && tied) {
+            startBreak('prePens');
+            return;
+        }
+
+        isRestarting = false;
+        gameOver = true;
+        showEndScreen(winText(scoreRed > scoreBlue ? 'red' : 'blue'), scoreRed + ' - ' + scoreBlue, '');
+    }
+
+    // === MAÇ SONU EKRANI ===
+    function showEndScreen(message, scoreLine, extraLine) {
+        menuBtnEl.style.display = 'none';
+        confirmEl.style.display = 'none';
+        const endScreen = document.createElement('div');
+        endScreen.style.cssText = `
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: system-ui, sans-serif;
+            z-index: 9999;
+            gap: 3vh;
+        `;
+        endScreen.innerHTML = `
+            <div style="font-size:5vh;font-weight:bold;">${message}</div>
+            <div style="font-size:3vh;">${scoreLine}</div>
+            ${extraLine ? '<div style="font-size:2.4vh;opacity:0.85;">' + extraLine + '</div>' : ''}
+            <button id="restartBtn" style="
+                padding: 2vh 4vh;
+                font-size: 2.5vh;
+                background: #fd0013;
+                color: #fff;
+                border: 0.3vh solid #fff;
+                border-radius: 1vh;
+                font-weight: bold;
+                cursor: pointer;
+            ">TEKRAR OYNA</button>
+            <button id="endMenuBtn" style="
+                padding: 1.6vh 4vh;
+                font-size: 2.2vh;
+                background: rgba(255,255,255,0.12);
+                color: #fff;
+                border: 0.3vh solid rgba(255,255,255,0.5);
+                border-radius: 1vh;
+                font-weight: bold;
+                cursor: pointer;
+                margin-top: -1.5vh;
+            ">MENÜ</button>
+        `;
+        document.body.appendChild(endScreen);
+
+        document.getElementById('restartBtn').addEventListener('click', () => {
+            endScreen.remove();
+            if (twoP) startTwoPlayer();   // iki oyunculuda aynı modla yeni maç
+            else showMenu();              // her maçtan önce zorluk seçilir
+        });
+        document.getElementById('endMenuBtn').addEventListener('click', () => {
+            endScreen.remove();
+            showMain();
+        });
+    }
+
+    // === ZORLUK MENÜSÜ ===
+    function buildMenu() {
+        DIFFICULTIES.forEach((d, i) => {
+            const b = document.createElement('button');
+            b.className = 'menu-btn';
+            b.style.background = 'hsl(' + d.hue + ', 55%, 26%)';
+            b.innerHTML = '<span>' + d.name + '</span><small>' + d.hint + '</small>';
+            b.addEventListener('click', () => chooseDifficulty(i));
+            menuEl.appendChild(b);
+            menuButtons.push(b);
+        });
+        const back = document.createElement('button');
+        back.className = 'big-btn alt';
+        back.style.marginTop = '1vh';
+        back.style.fontSize = '2vh';
+        back.style.padding = '1.4vh 2vh';
+        back.textContent = '← ANA MENÜ';
+        back.addEventListener('click', showMain);
+        menuEl.appendChild(back);
+    }
+
+    // === ANA MENÜ ===
+    function showMain() {
+        menuActive = true;
+        paused = false;
+        joyEnd();
+        confirmEl.style.display = 'none';
+        menuEl.style.display = 'none';
+        penMenuEl.style.display = 'none';
+        document.getElementById('copyNote').textContent = '';
+        document.getElementById('helpBox').style.display = 'none';
+        mainMenuEl.style.display = 'flex';
+        menuBtnEl.style.display = 'none';
+    }
+
+    // Maç içi menü butonu → uyarı (oyun durur)
+    function openConfirm() {
+        if (menuActive || paused || gameOver) return;
+        paused = true;
+        pauseStartedAt = performance.now();
+        joyEnd();
+        confirmEl.style.display = 'flex';
+    }
+    function closeConfirm() {
+        if (!paused) return;
+        const dur = performance.now() - pauseStartedAt;
+        halftimeStartTime += dur;       // mola sayacı da beklesin
+        blueLastShootTime += dur;
+        paused = false;
+        lastTick = performance.now();
+        confirmEl.style.display = 'none';
+    }
+    menuBtnEl.addEventListener('click', openConfirm);
+    document.getElementById('confirmNo').addEventListener('click', closeConfirm);
+    document.getElementById('confirmYes').addEventListener('click', () => {
+        confirmEl.style.display = 'none';
+        showMain();
+    });
+    document.getElementById('playBtn').addEventListener('click', () => {
+        mainMenuEl.style.display = 'none';
+        setPenOnly(false);
+        showMenu();
+    });
+    document.getElementById('twoBtn').addEventListener('click', () => {
+        mainMenuEl.style.display = 'none';
+        setPenOnly(false);
+        startTwoPlayer();
+    });
+    document.getElementById('penModeBtn').addEventListener('click', () => {
+        mainMenuEl.style.display = 'none';
+        penMenuEl.style.display = 'flex';
+    });
+    document.getElementById('penBackBtn').addEventListener('click', showMain);
+    document.getElementById('penOneBtn').addEventListener('click', () => {
+        penMenuEl.style.display = 'none';
+        setPenOnly(true);
+        showMenu();                 // tek kişide zorluk seçilir
+    });
+    document.getElementById('penTwoBtn').addEventListener('click', () => {
+        penMenuEl.style.display = 'none';
+        setPenOnly(true);
+        startTwoPlayer();
+    });
+    // === KODU KOPYALA ===
+    // Oyunun kaynak kodu yayında 'socer-v1.2-kod.txt' dosyası olarak durur; panoya kopyalanır.
+    const copyNoteEl = document.getElementById('copyNote');
+    const codeSheetEl = document.getElementById('codeSheet');
+    const codeTextEl = document.getElementById('codeText');
+    function copyNote(msg) { copyNoteEl.textContent = msg; }
+    async function fetchSource() {
+        for (const url of ['socer-v1.2-kod.txt', location.href]) {
+            try {
+                const r = await fetch(url, { cache: 'no-store' });
+                if (!r.ok) continue;
+                const t = await r.text();
+                if (t.length > 20000 && t.indexOf('Socer') >= 0) return t;
+            } catch (e) {}
+        }
+        return null;
+    }
+    function legacyCopy(text) {
+        try {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.setAttribute('readonly', '');
+            ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;';
+            document.body.appendChild(ta);
+            ta.select();
+            ta.setSelectionRange(0, text.length);
+            const ok = document.execCommand('copy');
+            ta.remove();
+            return ok;
+        } catch (e) { return false; }
+    }
+    async function copyCode() {
+        copyNote('kod hazırlanıyor…');
+        const text = await fetchSource();
+        if (!text) { copyNote('Kaynak kod dosyası bulunamadı.'); return; }
+        const kb = Math.round(text.length / 1024) + ' KB';
+        let ok = false;
+        try { await navigator.clipboard.writeText(text); ok = true; } catch (e) {}
+        if (!ok) ok = legacyCopy(text);
+        if (ok) { copyNote('✓ Kod kopyalandı (' + kb + ')'); return; }
+        // Pano izni yoksa: metni göster, elle kopyalansın
+        codeTextEl.value = text;
+        codeSheetEl.style.display = 'flex';
+        codeTextEl.focus();
+        codeTextEl.select();
+        copyNote('');
+    }
+    document.getElementById('copyBtn').addEventListener('click', copyCode);
+    document.getElementById('codeSelBtn').addEventListener('click', () => {
+        codeTextEl.focus();
+        codeTextEl.select();
+        codeTextEl.setSelectionRange(0, codeTextEl.value.length);
+        try { document.execCommand('copy'); } catch (e) {}
+    });
+    document.getElementById('codeCloseBtn').addEventListener('click', () => { codeSheetEl.style.display = 'none'; });
+
+    function setPenOnly(on) {
+        penOnly = on;
+        try { document.body.classList.toggle('penonly', on); } catch (e) {}
+    }
+    function setTwoP(on) {
+        twoP = on;
+        try { document.body.classList.toggle('twop', on); } catch (e) {}
+    }
+    function startTwoPlayer() {
+        setTwoP(true);
+        menuEl.style.display = 'none';
+        menuActive = false;
+        paused = false;
+        menuBtnEl.style.display = 'block';
+        joyEnd();
+        resetMatch();
+        if (penOnly) startShootout();
+    }
+    document.getElementById('helpBtn').addEventListener('click', () => {
+        const hb = document.getElementById('helpBox');
+        hb.style.display = hb.style.display === 'block' ? 'none' : 'block';
+    });
+
+    function showMenu() {
+        menuActive = true;
+        menuBtnEl.style.display = 'none';
+        menuButtons.forEach((b, i) => {
+            b.className = 'menu-btn' + (i === diffIndex ? ' last' : '');
+        });
+        menuEl.style.display = 'flex';
+    }
+
+    function chooseDifficulty(i) {
+        setTwoP(false);
+        diffIndex = i;
+        diff = DIFFICULTIES[i];
+        try { localStorage.setItem('socerDiff', String(i)); } catch (e) {}
+        menuEl.style.display = 'none';
+        menuActive = false;
+        paused = false;
+        menuBtnEl.style.display = 'block';
+        joyEnd();
+        resetMatch();
+        if (penOnly) startShootout();
+    }
+
+    function resetMatch() {
+        scoreRed = 0;
+        scoreBlue = 0;
+        scoreRedEl.textContent = 0;
+        scoreBlueEl.textContent = 0;
+
+        matchStarted = false;
+        period = 0;
+        periodElapsed = 0;
+        periodEnding = false;
+        periodFresh = true;
+        halftimeActive = false;
+        gameOver = false;
+
+        // Gol anı / süre sonu / titreme sıfırla
+        goalPause = false;
+        goalTimer = 0;
+        celeb = null;
+        periodEndWait = 0;
+        stopShake();
+
+        // Penaltı durumunu sıfırla
+        shootoutActive = false;
+        sh = null;
+        clearTimeout(bannerTimer);
+        penPanelEl.style.display = 'none';
+        bannerEl.style.display = 'none';
+        aimLineEl.style.display = 'none';
+        diffLabelEl.textContent = twoP ? '2 OYUNCU' : diff.name;
+
+        clearTimeout(noticeTimer);
+        halftimeEl.style.display = 'none';
+        lastTick = performance.now();
+        updateTimer();
+
+        restartTeam = Math.random() < 0.5 ? 'red' : 'blue';
+        halfKickoffTeam = restartTeam;
+        startRestart();
+    }
+
     shootBtn.addEventListener('pointerdown', e => {
         e.preventDefault();
         shoot();
     });
+    shootBtn2.addEventListener('pointerdown', e => {
+        e.preventDefault();
+        if (twoP) shootFor('blue');
+    });
 
     // Başlangıç pozisyonu
-    player.style.left = playerX + '%';
-    player.style.top  = playerY + '%';
 
-    // İlk santra — rastgele takım
-restartTeam = Math.random() < 0.5 ? 'red' : 'blue';
-firstHalfKickoffTeam = restartTeam;
-startRestart();
-    // Ana döngü
-function loop() {
-    // Oyun bittiyse döngü dursun
-    if (gameOver) {
-    // Top fiziği hâlâ işlesin
-    ballX += ballVX;
-    ballY += ballVY;
-    ballVX *= 0.975;
-    ballVY *= 0.975;
-    if (Math.abs(ballVX) < 0.05) ballVX = 0;
-    if (Math.abs(ballVY) < 0.05) ballVY = 0;
+    // ============================================================
+    // === PENALTI ATIŞLARI ===
+    // Her atışta rastgele bir kale seçilir. Atıcı o kalenin yarı sahasında
+    // serbestçe gezer, rakip oyuncu karşı yarı sahada gezer. Top penaltı
+    // noktasındadır; topa dokunulduğu ya da şut çekildiği an atış kullanılmış
+    // sayılır. Kaleci rastgele bir yöne atlar.
+    // 5 atış sonunda eşitlik varsa seri ani ölümle (sudden death) sürer.
+    // ============================================================
+    const PEN_READY_MAX = 10;      // atıcı topa dokunmazsa bu kadar sn sonra atış kaçmış sayılır
+    const SPOT_TOP_Y = 16.45;      // üst penaltı noktası (% yükseklik)
+    const SPOT_BOTTOM_Y = 83.55;   // alt penaltı noktası
 
-    ball.style.left = ballX + '%';
-    ball.style.top  = ballY + '%';
+    // Penaltıda oyuncular kalecilere yaklaşamaz (kaleciyi itemez): kale tarafı 17.5 / 82.5'te biter
+    function halfRange(top) {
+        return top ? [17.5, 47.5] : [52.5, 82.5];
+    }
 
-    requestAnimationFrame(loop);
-    return;
-}
+    function showBanner(text, color, ms) {
+        clearTimeout(bannerTimer);
+        bannerEl.textContent = text;
+        bannerEl.style.color = color;
+        bannerEl.style.display = 'block';
+        bannerTimer = setTimeout(() => { bannerEl.style.display = 'none'; }, ms || 1600);
+    }
 
-    const aspect = window.innerWidth / window.innerHeight;
+    // Skor farkı azaldıkça titreme güçlü, arttıkça zayıf (fark = golden sonraki fark)
+    function startShake(scoreDiff) {
+        let ampVh = 2.4 / (1 + 0.75 * scoreDiff);   // 0 fark: 2.4vh · 1: 1.4vh · 3: 0.7vh · 8: 0.3vh
+        try {
+            if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) ampVh *= 0.3;
+        } catch (e) {}
+        shakeAmp = ampVh * VH / 100;
+        shakeDur = 2;
+        shakeT = shakeDur;
+        worldEl.style.willChange = 'transform';
+    }
 
-    // === SÜRE SİSTEMİ ===
-    if (matchRunning && !waitingSecondHalf && !isRestarting) {
-        const elapsedReal = (performance.now() - matchStartTime) / 1000;
-        const totalElapsed = elapsedReal;
+    function updateShake(dt) {
+        if (shakeT <= 0) return;
+        shakeT = Math.max(0, shakeT - dt);
+        if (shakeT === 0) {
+            worldEl.style.transform = '';
+            worldEl.style.willChange = '';
+            return;
+        }
+        const a = shakeAmp * (shakeT / shakeDur);   // zamanla sönümlenir
+        worldEl.style.transform = 'translate(' + ((Math.random() * 2 - 1) * a).toFixed(2) + 'px,' +
+            ((Math.random() * 2 - 1) * a).toFixed(2) + 'px)';
+    }
 
-        if (currentHalf === 1 && totalElapsed >= 45) {
-    currentHalf = 2;
-    waitingSecondHalf = true;
-    matchTime = 45;
-    halftimeStartTime = performance.now();
-    updateTimer();
+    function stopShake() {
+        shakeT = 0;
+        worldEl.style.transform = '';
+        worldEl.style.willChange = '';
+    }
 
+    // Gol: top oyun dışı, yazı + titreme, santra GOAL_PAUSE_SEC sonra
+    function startGoalPause(scorer) {
+        goalPause = true;
+        goalTimer = 0;
+        restartTeam = (scorer === 'red') ? 'blue' : 'red';   // gol yiyen takım başlatır
+        ktHasBall = false;
+        kbHasBall = false;
+        // Bot gol atınca rakip (kırmızı) yarı sahadaki rastgele bir köşeye koşar
+        celeb = (scorer === 'blue' && !twoP) ? { x: Math.random() < 0.5 ? 6 : 94, y: 94.5 } : null;
+        showBanner('GOL!', scorer === 'red' ? '#ff4d5d' : '#5aa9ff', GOAL_BANNER_SEC * 1000);
+        startShake(Math.abs(scoreRed - scoreBlue));
+    }
+
+    function penRow(team, from, n) {
+        let s = from > 0 ? '<span style="opacity:0.6">…</span>' : '';
+        for (let i = from; i < n; i++) {
+            const k = sh.kicks[team][i];
+            if (k === undefined) s += '○';
+            else if (k) s += '<span style="color:#4ade80">●</span>';
+            else s += '<span style="color:#f87171">✕</span>';
+        }
+        return s;
+    }
+
+    function updatePenPanel() {
+        // Ani ölüm uzadıkça panel uzamasın: en fazla son 5 atış gösterilir (skor toplamı hep görünür)
+        const n = Math.max(5, sh.kicks.red.length, sh.kicks.blue.length);
+        const from = n - 5;
+        penPanelEl.innerHTML =
+            '<div class="pen-row"><span class="team-box" style="background:#fd0013"></span>' +
+                penRow('red', from, n) + ' <b>' + sh.pen.red + '</b></div>' +
+            '<div class="pen-row"><span class="team-box" style="background:#3b82f6"></span>' +
+                penRow('blue', from, n) + ' <b>' + sh.pen.blue + '</b></div>';
+        penPanelEl.style.display = 'block';
+    }
+
+    function updateShootoutStatus() {
+        halftimeEl.style.display = 'block';
+        halftimeEl.textContent = penStatusText();
+    }
+    function penStatusText() {
+        return (twoP ? 'penaltı · ' : 'penaltılar · sıra: ') + (sh.shooter === 'red' ? (twoP ? 'kırmızı' : 'sen') : (twoP ? 'mavi' : 'rakip')) +
+            ' · ' + (sh.goal === 'top' ? 'üst kale' : 'alt kale');
+    }
+
+    function startShootout() {
+        clearTimeout(noticeTimer);
+        shootoutActive = true;
+        halftimeActive = false;
+        periodEnding = false;
+        isRestarting = false;
+
+        sh = {
+            first: Math.random() < 0.5 ? 'red' : 'blue',   // yazı-tura
+            kickCount: 0,
+            kicks: { red: [], blue: [] },   // true = gol, false = kaçtı/kurtarıldı
+            pen: { red: 0, blue: 0 },
+            goal: 'top',
+            shooter: 'red',
+            state: 'ready',                 // ready → flight → result
+            botTimer: 0,
+            flightTime: 0,
+            resultTimer: 0,
+            saved: false,
+            diveX: 50,
+            diveDelay: 0,
+            aimX: 50
+        };
+        setupKick();
+    }
+
+    // Rakip oyuncunun penaltıda vuracağı köşeyi seç
+    function planBotShot() {
+        const lo = diff.penBotAim[0];
+        const hi = diff.penBotAim[1];
+        let off = (Math.random() < (diff.penBotCenter || 0)) ? Math.random() * 4 : lo + Math.random() * (hi - lo);
+        if (Math.random() < diff.penBotMiss) off = 20 + Math.random() * 6;   // direğin dışına
+        sh.aimX = 50 + (Math.random() < 0.5 ? -off : off);
+    }
+
+    // Yeni atış: rastgele kale, top noktada, oyuncular kendi yarı sahalarında
+    function setupKick() {
+        sh.shooter = (sh.kickCount % 2 === 0) ? sh.first : (sh.first === 'red' ? 'blue' : 'red');
+        sh.goal = (sh.shooter === 'red') ? 'top' : 'bottom';   // kırmızı üst kaleye, mavi alt kaleye atar
+        sh.state = 'ready';
+        sh.botTimer = 0;
+        sh.flightTime = 0;
+        sh.saved = false;
+        sh.diveDelay = 0;
+        sh.readyTimer = 0;
+        sh.separated = false;
+
+        const top = sh.goal === 'top';
+
+        clearTimeout(bannerTimer);
+        bannerEl.style.display = 'none';
+
+        ball.style.display = 'block';
+        ball.style.visibility = 'visible';
+        ballX = 50;
+        ballY = top ? SPOT_TOP_Y : SPOT_BOTTOM_Y;
+        ballVX = 0;
+        ballVY = 0;
+        ktHasBall = false;
+        kbHasBall = false;
+
+        const shooterY = top ? 32 : 68;   // atıcı: kalenin olduğu yarı saha
+        const otherY = top ? 68 : 32;     // diğer oyuncu: karşı yarı saha
+        if (sh.shooter === 'red') {
+            playerX = 50; playerY = shooterY;
+            playerBlueX = 50; playerBlueY = otherY;
         } else {
-            matchTime = Math.max(0, 90 - totalElapsed);
-            updateTimer();
+            playerBlueX = 50; playerBlueY = shooterY;
+            playerX = 50; playerY = otherY;
+        }
+
+        ktX = 50; ktY = top ? 6.5 : 12;
+        kbX = 50; kbY = top ? 88 : 93.5;
+
+        planBotShot();
+        updatePenPanel();
+        updateShootoutStatus();
+    }
+
+    // Topa dokunuldu ya da şut çekildi → penaltı kullanıldı, kaleci rastgele atlar
+    function shootoutKickUsed(team, explicitShot) {
+        if (!shootoutActive || !sh || sh.shooter !== team) return;
+
+        // Atıştan sonra atıcı topa tekrar dokunursa = çift dokunuş (yanlış, atış kaçmış sayılır).
+        // Şut butonuyla ikinci vuruş her zaman çift dokunuş; yürüyerek dokunmada ise
+        // topla temas kesildikten sonraki ilk dokunuş sayılır (aynı temasın devamı değil).
+        if (sh.state === 'flight') {
+            if (explicitShot || sh.separated) resolveKick('double');
+            return;
+        }
+        if (sh.state !== 'ready') return;
+
+        sh.state = 'flight';
+        sh.flightTime = 0;
+        sh.separated = false;
+        sh.saved = false;
+
+        const smart = twoP ? 0.1 : ((team === 'red') ? diff.rivalSmart : diff.ownSmart);
+        const reach = twoP ? 11 : ((team === 'red') ? diff.rivalReach : diff.ownReach);
+
+        let dir;
+        if (Math.abs(ballVX) > 0.12 && Math.random() < smart) {
+            dir = ballVX > 0 ? 1 : -1;                       // atışı okudu
+        } else {
+            // rastgele: çoğunlukla sol/sağ köşeye atlar, ortada kalma ihtimali düşük
+            dir = Math.random() < 0.15 ? 0 : (Math.random() < 0.5 ? -1 : 1);
+        }
+        sh.diveX = 50 + dir * reach;
+        sh.diveDelay = 3;   // tepki süresi (kare)
+    }
+
+    // Rakip oyuncu penaltı atarken: topun arkasına yürür, sonra vurur
+    function botTakePenalty(aspect, dt) {
+        const goalY = sh.goal === 'top' ? 4 : 96;   // gol çizgisine nişan al
+        const dx = sh.aimX - ballX;
+        const dy = goalY - ballY;
+        const len = Math.hypot(dx, dy) || 1;
+        const dirX = dx / len;
+        const dirY = dy / len;
+
+        const ax = ballX - dirX * 4.2;
+        const ay = ballY - dirY * 4.2;
+        const ddx = ax - playerBlueX;
+        const ddy = ay - playerBlueY;
+        const dist = Math.hypot(ddx, ddy);
+
+        if (dist > 0.6) {
+            const step = Math.min(0.30, dist);
+            playerBlueX += (ddx / dist) * step / aspect;
+            playerBlueY += (ddy / dist) * step;
+        }
+
+        sh.botTimer += dt;
+        if ((dist <= 0.8 && sh.botTimer > 1.2) || sh.botTimer > 4) {
+            ballVX = dirX * 1.35;
+            ballVY = dirY * 1.35;
+            shootoutKickUsed('blue');
         }
     }
-// === MOLA SAYACI ===
-if (matchRunning && !waitingSecondHalf && !isRestarting && !halftimeActive) {
-    const elapsedReal = (performance.now() - matchStartTime) / 1000;
-    const totalElapsed = elapsedReal;
-}
-// === MOLA SAYACI 2 ===
-if (halftimeActive) {
-    const elapsed = (performance.now() - halftimeStartTime) / 1000;
-    const remaining = Math.max(0, 15 - Math.floor(elapsed));
-  halftimeEl.textContent = 'devre arası ' + String(remaining).padStart(2, '0');
-  
-    if (remaining <= 0) {
-    halftimeActive = false;
-    halftimeEl.style.display = 'none';
 
-    // Karşı takım santra atar
-    restartTeam = (firstHalfKickoffTeam === 'red') ? 'blue' : 'red';
-    startRestart();
-}
-}
-        // Önceki konumu sakla
-        const prevX = playerX;
-        const prevY = playerY;
+    // Savunan kaleci atlar, diğer kaleci yerinde bekler
+    function updateShootoutKeepers() {
+        const top = sh.goal === 'top';
 
-        // === HAREKET (santra kilidi) ===
-        let speed = 0.35;
-
-        if (isRestarting && !kickoffTaken && restartTeam === 'blue') {
-            speed = 0;
-        }
-
-        playerX += joyX * speed / aspect;
-        playerY += joyY * speed;
-
-        playerX = Math.max(3, Math.min(97, playerX));
-        playerY = Math.max(2.25, Math.min(97.75, playerY));
-
-        // === SANTRA SINIRI (kırmızı) ===
-        if (isRestarting && !kickoffTaken) {
-            if (restartTeam === 'blue') {
-                playerY = Math.max(52, playerY);
+        if (sh.state === 'flight') {
+            if (sh.diveDelay > 0) {
+                sh.diveDelay--;
+            } else {
+                const maxStep = Math.max(1.8, Math.abs(sh.diveX - 50) / 4);   // ~4 karede hedefe varır
+                if (top) ktX += Math.max(-maxStep, Math.min(maxStep, sh.diveX - ktX));
+                else kbX += Math.max(-maxStep, Math.min(maxStep, sh.diveX - kbX));
             }
         }
 
-if (isRestarting && !kickoffTaken && !waitingSecondHalf && !halftimeActive) {
-    restartTimer--;
-    if (restartTimer <= 0) {
-        restartTeam = (restartTeam === 'red') ? 'blue' : 'red';
-        startRestart();
+        if (top) {
+            ktY = 6.5;
+            kbX += (50 - kbX) * 0.1;
+            kbY += (88 - kbY) * 0.1;
+        } else {
+            kbY = 93.5;
+            ktX += (50 - ktX) * 0.1;
+            ktY += (12 - ktY) * 0.1;
+        }
     }
-}
 
-        // === RAKİP OYUNCU AI ===
-        // === RAKİP OYUNCU AI ===
-if (halftimeActive) {
-    // === MOLA — 1 saniye bekle, sonra rastgele dolaş ===
-    const elapsed = (performance.now() - halftimeStartTime) / 1000;
+    function shootoutWinner() {
+        const rk = sh.kicks.red.length;
+        const bk = sh.kicks.blue.length;
+        const remR = Math.max(0, 5 - rk);
+        const remB = Math.max(0, 5 - bk);
 
-    if (elapsed > 1) {
-        // 1 saniye geçti → rastgele dolaş
+        if (rk < 5 || bk < 5) {
+            if (sh.pen.red > sh.pen.blue + remB) return 'red';
+            if (sh.pen.blue > sh.pen.red + remR) return 'blue';
+            return null;
+        }
+        // 5'er atış bitti: eşitse ani ölüm, her tur sonunda kontrol
+        if (rk === bk && sh.pen.red !== sh.pen.blue) {
+            return sh.pen.red > sh.pen.blue ? 'red' : 'blue';
+        }
+        return null;
+    }
+
+    function resolveKick(result) {
+        const team = sh.shooter;
+        const scored = result === 'goal';
+
+        sh.state = 'result';
+        sh.resultTimer = 1.8;
+        sh.kicks[team].push(scored);
+        if (scored) sh.pen[team]++;
+        sh.kickCount = sh.kicks.red.length + sh.kicks.blue.length;
+
+        if (scored) showBanner('GOL!', '#4ade80');
+        else if (result === 'double') showBanner('ÇİFT DOKUNUŞ!', '#f87171');
+        else if (result === 'timeout') showBanner('SÜRE DOLDU!', '#f87171');
+        else if (result === 'save') showBanner('KURTARDI!', '#f87171');
+        else showBanner('KAÇTI!', '#f87171');
+
+        updatePenPanel();
+    }
+
+    function finishShootout(winner) {
+        shootoutActive = false;
+        gameOver = true;
+        aimLineEl.style.display = 'none';
+        halftimeEl.style.display = 'none';
+        showEndScreen(
+            winText(winner),
+            penOnly ? (sh.pen.red + ' - ' + sh.pen.blue) : (scoreRed + ' - ' + scoreBlue),
+            penOnly ? 'Penaltılar' : 'Penaltılar: ' + sh.pen.red + ' - ' + sh.pen.blue
+        );
+    }
+
+    function updateShootout(dt) {
+        if (sh.state === 'ready') {
+            // Atıcı (insan) topa hiç dokunmazsa atış sonsuza dek beklemesin
+            sh.readyTimer += dt;
+            const left = Math.ceil(PEN_READY_MAX - sh.readyTimer);
+            if (sh.readyTimer >= PEN_READY_MAX) {
+                resolveKick('timeout');
+            } else if (!(sh.shooter === 'blue' && !twoP)) {   // bot kendi süresiyle vurur
+                const lbl = penStatusText() + ' · ' + Math.max(0, left);
+                if (halftimeEl.textContent !== lbl) halftimeEl.textContent = lbl;
+            }
+        } else if (sh.state === 'flight') {
+            sh.flightTime += dt;
+            // topla temas kesildi mi? (sonraki dokunuş çift dokunuş sayılır)
+            if (!sh.separated) {
+                const sx = sh.shooter === 'red' ? playerX : playerBlueX;
+                const sy = sh.shooter === 'red' ? playerY : playerBlueY;
+                const dPx = Math.hypot((ballX - sx) * VW / 100, (ballY - sy) * VH / 100);
+                if (dPx > playerSize / 2 + ballSize / 2 + 3) sh.separated = true;
+            }
+            const top = sh.goal === 'top';
+            const inGoalW = ballX > 32.5 && ballX < 67.5;
+            const speedNow = Math.hypot(ballVX, ballVY);
+
+            if (inGoalW && ((top && ballY < 4) || (!top && ballY > 96))) {
+                resolveKick('goal');
+            } else if (sh.saved) {
+                resolveKick('save');
+            } else if ((sh.flightTime > 0.4 && speedNow < 0.12) || sh.flightTime > 3) {
+                resolveKick('miss');
+            }
+        } else if (sh.state === 'result') {
+            sh.resultTimer -= dt;
+            if (sh.resultTimer <= 0) {
+                const winner = shootoutWinner();
+                if (winner) finishShootout(winner);
+                else setupKick();
+            }
+        }
+    }
+
+    // Şut yönünü gösteren noktalı çizgi (sadece sen atarken, topa yakınken)
+    function updateAimLine() {
+        if (!(shootoutActive && sh && sh.state === 'ready' && (sh.shooter === 'red' || (twoP && sh.shooter === 'blue')))) {
+            aimLineEl.style.display = 'none';
+            return;
+        }
+        const shX = sh.shooter === 'red' ? playerX : playerBlueX;
+        const shY = sh.shooter === 'red' ? playerY : playerBlueY;
+        const dx = ballX - shX;
+        const dy = ballY - shY;
+        const dist = Math.hypot(dx, dy) || 0.0001;
+        if (dist >= 6) {
+            aimLineEl.style.display = 'none';
+            return;
+        }
+
+        const dirX = dx / dist;
+        const dirY = dy / dist;
+        const W = VW;
+        const H = VH;
+        const vx = dirX * W / 100;   // 1 birimde piksel
+        const vy = dirY * H / 100;
+
+        const goalY = sh.goal === 'top' ? 0 : 100;
+        let t = dirY !== 0 ? (goalY - ballY) / dirY : 0;
+        if (!(t > 0)) t = 12;        // kaleye doğru gitmiyor
+        t = Math.min(t, 40);
+
+        aimLineEl.style.display = 'block';
+        aimLineEl.style.left = (ballX * W / 100) + 'px';
+        aimLineEl.style.top = (ballY * H / 100) + 'px';
+        aimLineEl.style.width = (t * Math.hypot(vx, vy)) + 'px';
+        aimLineEl.style.transform = 'rotate(' + Math.atan2(vy, vx) + 'rad)';
+    }
+
+    // Bot gol sonrası verilen noktaya koşar
+    function runBotTo(aspect, tx, ty, spd) {
+        const dxB = tx - playerBlueX;
+        const dyB = ty - playerBlueY;
+        const distB = Math.hypot(dxB, dyB);
+        if (distB > 0.5) {
+            const step = Math.min(spd, distB);
+            playerBlueX += (dxB / distB) * step / aspect;
+            playerBlueY += (dyB / distB) * step;
+        }
+        playerBlueX = Math.max(3, Math.min(97, playerBlueX));
+        playerBlueY = Math.max(2.25, Math.min(97.75, playerBlueY));
+    }
+
+    // Mola ve penaltıda rakibin rastgele dolaşması (yMin–yMax arası)
+    function wanderBot(aspect, yMin, yMax) {
         halftimeBotTimer--;
         if (halftimeBotTimer <= 0) {
-            // Yeni rastgele hedef seç
             halftimeBotTarget.x = 20 + Math.random() * 60;
-            halftimeBotTarget.y = 20 + Math.random() * 60;
+            halftimeBotTarget.y = yMin + Math.random() * (yMax - yMin);
             halftimeBotTimer = 60 + Math.random() * 60;   // 1-2 saniye
         }
 
@@ -936,11 +2098,268 @@ if (halftimeActive) {
         playerBlueX = Math.max(3, Math.min(97, playerBlueX));
         playerBlueY = Math.max(2.25, Math.min(97.75, playerBlueY));
     }
-    // 1 saniye dolmadıysa hiçbir şey yapma (bekle)
-} else if (isRestarting && !kickoffTaken && restartTeam !== 'blue') {
-    playerBlueY = Math.min(48, playerBlueY);
-    playerBlueX = Math.max(3, Math.min(97, playerBlueX));
-} else {
+
+    // Kayıtlı zorluğu oku
+    try {
+        const saved = parseInt(localStorage.getItem('socerDiff'), 10);
+        if (saved >= 0 && saved < DIFFICULTIES.length) {
+            diffIndex = saved;
+            diff = DIFFICULTIES[saved];
+        }
+    } catch (e) {}
+
+    // İlk santra hazırlanır, üstüne zorluk menüsü açılır
+    measure();
+    buildMenu();
+    resetMatch();
+    render();
+    showMain();
+
+    // === ÇARPIŞMA FONKSİYONLARI (kare başına yeniden oluşturulmaz) ===
+    function keeperBallCollision(kx, ky, radiusPx, isTop) {
+        const bR = ballSize / 2;
+        const kPx = (kx / 100) * VW;
+        const kPy = (ky / 100) * VH;
+        const bPx = (ballX / 100) * VW;
+        const bPy = (ballY / 100) * VH;
+
+        const dx = bPx - kPx;
+        const dy = bPy - kPy;
+        const dist = Math.hypot(dx, dy);
+        const minDist = radiusPx + bR;
+
+        if (dist < minDist && dist > 0.01) {
+            const ballSpd = Math.hypot(ballVX, ballVY);
+            // Hızlı topu kaçırma ihtimali zorluğa göre (NORMAL'de %30). Penaltıda kaçırmaz.
+            const passChance = isTop ? diff.ktPass : diff.kbPass;
+            if (!shootoutActive && ballSpd > 1.0 && Math.random() < passChance) {
+                return;
+            }
+
+            const nx = dx / dist;
+            const ny = dy / dist;
+
+            ballX = (kPx + nx * minDist) / VW  * 100;
+            ballY = (kPy + ny * minDist) / VH * 100;
+
+            const dot = ballVX * nx + ballVY * ny;
+            ballVX -= 2 * dot * nx;
+            ballVY -= 2 * dot * ny;
+
+            // Penaltıda kaleciye çarpan top kurtarılmış sayılır
+            if (shootoutActive && sh && sh.state === 'flight') sh.saved = true;
+
+            if (isTop) {
+                if (ballVY < 0) ballVY = Math.abs(ballVY);
+            } else {
+                if (ballVY > 0) ballVY = -Math.abs(ballVY);
+            }
+        }
+    }
+
+    function keeperPlayerCollision(kx, ky, radiusPx, isTop) {
+        const pR = playerSize / 2;
+        const kPx = (kx / 100) * VW;
+        const kPy = (ky / 100) * VH;
+        const pPx = (playerX / 100) * VW;
+        const pPy = (playerY / 100) * VH;
+
+        const dx = pPx - kPx;
+        const dy = pPy - kPy;
+        const dist = Math.hypot(dx, dy);
+        const minDist = radiusPx + pR;
+
+        if (dist < minDist && dist > 0.01) {
+            const nx = dx / dist;
+            const ny = dy / dist;
+
+            playerX = (kPx + nx * minDist) / VW  * 100;
+            playerY = (kPy + ny * minDist) / VH * 100;
+
+            const push = 0.2;
+            if (isTop) {
+                ktX -= nx * push;
+                ktY -= ny * push;
+            } else {
+                kbX -= nx * push;
+                kbY -= ny * push;
+            }
+        }
+    }
+
+    function keeperBlueCollision(kx, ky, radiusPx) {
+        const pbR = playerSize / 2;
+        const kPx = (kx / 100) * VW;
+        const kPy = (ky / 100) * VH;
+        const pbPx = (playerBlueX / 100) * VW;
+        const pbPy = (playerBlueY / 100) * VH;
+
+        const dx = pbPx - kPx;
+        const dy = pbPy - kPy;
+        const dist = Math.hypot(dx, dy);
+        const minDist = radiusPx + pbR;
+
+        if (dist < minDist && dist > 0.01) {
+            const nx = dx / dist;
+            const ny = dy / dist;
+
+            playerBlueX = (kPx + nx * minDist) / VW  * 100;
+            playerBlueY = (kPy + ny * minDist) / VH * 100;
+        }
+    }
+
+    // Ana döngü
+    function loop() {
+        // Zorluk menüsü açıkken oyun bekler
+        if (menuActive || paused) {
+            lastTick = performance.now();
+            requestAnimationFrame(loop);
+            return;
+        }
+
+        // Oyun bittiyse sadece top fiziği işlesin
+        if (gameOver) {
+            ballX += ballVX;
+            ballY += ballVY;
+            ballVX *= 0.975;
+            ballVY *= 0.975;
+            if (Math.abs(ballVX) < 0.05) ballVX = 0;
+            if (Math.abs(ballVY) < 0.05) ballVY = 0;
+
+            render();
+            requestAnimationFrame(loop);
+            return;
+        }
+
+        const aspect = VW / VH;
+        const nowTick = performance.now();
+        const dt = Math.min(0.1, (nowTick - lastTick) / 1000);
+        lastTick = nowTick;
+        const prevBallY = ballY;
+
+        // === SÜRE SİSTEMİ ===
+        // Saat sadece top oyundayken işler (santra bekleme, mola ve süre sonu bekleme hariç)
+        if (matchStarted && !isRestarting && !halftimeActive && !goalPause && !periodEnding && !shootoutActive) {
+            periodElapsed += dt;
+            if (periodElapsed >= PERIOD_LEN[period]) {
+                periodElapsed = PERIOD_LEN[period];
+                periodEnding = true;   // saat durur, top orta çizgiyi geçince (en geç PERIOD_END_MAX sn sonra) devre biter
+                periodEndWait = 0;
+                halftimeEl.textContent = 'süre doldu';
+                halftimeEl.style.display = 'block';
+            }
+            updateTimer();
+        }
+
+        // === GOL DURAKLAMASI ===
+        if (goalPause) {
+            goalTimer += dt;
+            if (goalTimer >= GOAL_PAUSE_SEC) {
+                goalPause = false;
+                celeb = null;
+                startRestart();   // santra: gol yiyen takım
+            }
+        }
+        const playDead = halftimeActive || goalPause;   // top kimseyle etkileşmez
+
+        // === KAMERA TİTREMESİ ===
+        updateShake(dt);
+
+        // === MOLA SAYACI ===
+        if (halftimeActive) {
+            const elapsedBreak = (nowTick - halftimeStartTime) / 1000;
+            if (elapsedBreak >= breakLen) {
+                endBreak();
+            } else {
+                const remaining = Math.max(1, breakLen - Math.floor(elapsedBreak));
+                const lbl = BREAK_LABELS[breakKind] + pad2(remaining);
+                if (halftimeEl.textContent !== lbl) halftimeEl.textContent = lbl;
+            }
+        }
+
+        // Önceki konumu sakla
+        const prevX = playerX;
+        const prevY = playerY;
+
+        // === HAREKET (santra kilidi) ===
+        let speed = 0.35;
+
+        if (!twoP && isRestarting && !kickoffTaken && restartTeam === 'blue') {
+            speed = 0;
+        }
+
+        playerX += J1.x * speed / aspect;
+        playerY += J1.y * speed;
+
+        playerX = Math.max(3, Math.min(97, playerX));
+        playerY = Math.max(2.25, Math.min(97.75, playerY));
+
+        // === SANTRA SINIRI (kırmızı) ===
+        if (isRestarting && !kickoffTaken) {
+            if (restartTeam === 'blue') {
+                playerY = Math.max(52, playerY);
+            }
+        }
+
+        // === PENALTI: kırmızı oyuncu sadece kendi yarı sahasında gezer ===
+        if (shootoutActive && sh) {
+            const redHalfTop = (sh.shooter === 'red') ? (sh.goal === 'top') : (sh.goal !== 'top');
+            const rr = halfRange(redHalfTop);
+            playerY = Math.max(rr[0], Math.min(rr[1], playerY));
+        }
+
+        if (isRestarting && !kickoffTaken && !halftimeActive) {
+            restartTimer--;
+            if (restartTimer <= 0) {
+                restartTeam = (restartTeam === 'red') ? 'blue' : 'red';
+                startRestart();
+            }
+        }
+
+        // === RAKİP OYUNCU (iki oyunculuda 2. oyuncu, değilse AI) ===
+        if (twoP) {
+            playerBlueX += J2.x * 0.35 / aspect;
+            playerBlueY += J2.y * 0.35;
+            playerBlueX = Math.max(3, Math.min(97, playerBlueX));
+            playerBlueY = Math.max(2.25, Math.min(97.75, playerBlueY));
+
+            // Santra: kırmızı başlatıyorsa mavi kendi yarı sahasında kalır
+            if (isRestarting && !kickoffTaken && restartTeam === 'red') {
+                playerBlueY = Math.min(48, playerBlueY);
+            }
+            // Penaltı: mavi sadece kendi yarı sahasında gezer
+            if (shootoutActive && sh) {
+                const blueHalfTop2 = (sh.shooter === 'blue') ? (sh.goal === 'top') : (sh.goal !== 'top');
+                const br2 = halfRange(blueHalfTop2);
+                playerBlueY = Math.max(br2[0], Math.min(br2[1], playerBlueY));
+            }
+        } else if (goalPause && celeb) {
+            // Bot gol attı: rakip sahadaki rastgele bir köşeye koşar
+            runBotTo(aspect, celeb.x, celeb.y, 0.35);
+        } else if (halftimeActive || goalPause) {
+            // === MOLA / GOL SONRASI — 1 saniye bekle, sonra rastgele dolaş ===
+            const breakElapsed = halftimeActive ? (nowTick - halftimeStartTime) / 1000 : goalTimer;
+
+            if (breakElapsed > 1) {
+                wanderBot(aspect, 20, 80);
+            }
+        } else if (shootoutActive && sh) {
+            // === PENALTI — atıcıysa topa yürüyüp vurur, değilse karşı yarı sahada dolaşır ===
+            const blueHalfTop = (sh.shooter === 'blue') ? (sh.goal === 'top') : (sh.goal !== 'top');
+
+            if (sh.shooter === 'blue' && sh.state === 'ready') {
+                botTakePenalty(aspect, dt);
+            } else if (sh.shooter === 'red') {
+                wanderBot(aspect, blueHalfTop ? 8 : 55, blueHalfTop ? 45 : 92);
+            }
+
+            const br = halfRange(blueHalfTop);
+            playerBlueX = Math.max(3, Math.min(97, playerBlueX));
+            playerBlueY = Math.max(br[0], Math.min(br[1], playerBlueY));
+        } else if (isRestarting && !kickoffTaken && restartTeam !== 'blue') {
+            playerBlueY = Math.min(48, playerBlueY);
+            playerBlueX = Math.max(3, Math.min(97, playerBlueX));
+        } else {
             // === NORMAL AI ===
             const tx = ballX;
             const ty = ballY - 1;
@@ -948,7 +2367,7 @@ if (halftimeActive) {
             const dxR = tx - playerBlueX;
             const dyR = ty - playerBlueY;
             const distR = Math.hypot(dxR, dyR);
-            const blueSpeed = 0.30;
+            const blueSpeed = diff.blueSpeed;
 
             if (distR > 0.3) {
                 const step = Math.min(blueSpeed, distR);
@@ -960,7 +2379,10 @@ if (halftimeActive) {
             playerBlueY = Math.max(2.25, Math.min(97.75, playerBlueY));
 
             // === RAKİP ŞUT ===
-            const goalX = 50, goalY = 100;
+            // Zorluğa göre kaleciden uzak köşeyi hedefler (NORMAL'de tam ortaya vurur)
+            const aimSide = (kbX < 50) ? 1 : -1;
+            const goalX = 50 + aimSide * diff.aimOffset + (Math.random() - 0.5) * diff.aimErr;
+            const goalY = 100;
             const dxBall = ballX - playerBlueX;
             const dyBall = ballY - playerBlueY;
             const distBall = Math.hypot(dxBall, dyBall);
@@ -979,31 +2401,43 @@ if (halftimeActive) {
         }
 
         // Render
-        playerBlue.style.left = playerBlueX + '%';
-        playerBlue.style.top  = playerBlueY + '%';
+
+        // === MOLADA TOP OYUN DIŞI ===
+        // Top gizli kalır, santra bölgesine/oyuncuların arasına gelmez.
+        if (halftimeActive) {
+            ballVX = 0;
+            ballVY = 0;
+            ballX = 50;
+            ballY = 50;
+        }
+        // Gol sonrası top ağda hızla durur, kaleciye/oyunculara çarpıp dışarı çıkmaz
+        if (goalPause) {
+            ballVX *= 0.7;
+            ballVY *= 0.7;
+        }
 
         // === TOP HAREKET ===
-ballX += ballVX;
-ballY += ballVY;
-ballVX *= 0.975;
-ballVY *= 0.975;
-if (Math.abs(ballVX) < 0.05) ballVX = 0;
-if (Math.abs(ballVY) < 0.05) ballVY = 0;
+        ballX += ballVX;
+        ballY += ballVY;
+        ballVX *= 0.975;
+        ballVY *= 0.975;
+        if (Math.abs(ballVX) < 0.05) ballVX = 0;
+        if (Math.abs(ballVY) < 0.05) ballVY = 0;
+
         // === TOP SINIRLAR ===
-        const autTopPercent = (2 / window.innerHeight) * 100;
+        const autTopPercent = (2 / VH) * 100;
         const autBottomPercent = 100 - autTopPercent;
-        const ballRPct = (ball.offsetHeight / 2) / window.innerHeight * 100;
+        const ballRPct = (ballSize / 2) / VH * 100;
 
         if (ballX < 4) { ballX = 4; ballVX = Math.abs(ballVX) * 0.7; }
         if (ballX > 96 - ballRPct) { ballX = 96 - ballRPct; ballVX = -Math.abs(ballVX) * 0.7; }
 
-        const ballR = ball.offsetWidth / 2;
+        const ballR = ballSize / 2;
 
         // === KÖŞE HITBOX ===
-        cornerHitboxes.forEach(box => {
-            const boxRect = box.getBoundingClientRect();
-            const bcx = (ballX / 100) * window.innerWidth;
-            const bcy = (ballY / 100) * window.innerHeight;
+        cornerRects.forEach(boxRect => {
+            const bcx = (ballX / 100) * VW;
+            const bcy = (ballY / 100) * VH;
 
             if (bcx > boxRect.left && bcx < boxRect.right &&
                 bcy > boxRect.top  && bcy < boxRect.bottom) {
@@ -1016,16 +2450,16 @@ if (Math.abs(ballVY) < 0.05) ballVY = 0;
                 const minDist = Math.min(distLeft, distRight, distTop, distBottom);
 
                 if (minDist === distLeft) {
-                    ballX = (boxRect.left - ballR) / window.innerWidth * 100;
+                    ballX = (boxRect.left - ballR) / VW * 100;
                     ballVX = -Math.abs(ballVX) * 0.7;
                 } else if (minDist === distRight) {
-                    ballX = (boxRect.right + ballR) / window.innerWidth * 100;
+                    ballX = (boxRect.right + ballR) / VW * 100;
                     ballVX = Math.abs(ballVX) * 0.7;
                 } else if (minDist === distTop) {
-                    ballY = (boxRect.top - ballR) / window.innerHeight * 100;
+                    ballY = (boxRect.top - ballR) / VH * 100;
                     ballVY = -Math.abs(ballVY) * 0.7;
                 } else {
-                    ballY = (boxRect.bottom + ballR) / window.innerHeight * 100;
+                    ballY = (boxRect.bottom + ballR) / VH * 100;
                     ballVY = Math.abs(ballVY) * 0.7;
                 }
                 return;
@@ -1042,8 +2476,8 @@ if (Math.abs(ballVY) < 0.05) ballVY = 0;
                 const nx = dx / dist;
                 const ny = dy / dist;
 
-                ballX = (closestX + nx * ballR) / window.innerWidth  * 100;
-                ballY = (closestY + ny * ballR) / window.innerHeight * 100;
+                ballX = (closestX + nx * ballR) / VW  * 100;
+                ballY = (closestY + ny * ballR) / VH * 100;
 
                 const dot = ballVX * nx + ballVY * ny;
                 ballVX -= 2 * dot * nx;
@@ -1068,10 +2502,9 @@ if (Math.abs(ballVY) < 0.05) ballVY = 0;
         }
 
         // === TOP-DİREK ÇARPIŞMASI ===
-        posts.forEach(post => {
-            const postRect = post.getBoundingClientRect();
-            const bcx = (ballX / 100) * window.innerWidth;
-            const bcy = (ballY / 100) * window.innerHeight;
+        postRects.forEach(postRect => {
+            const bcx = (ballX / 100) * VW;
+            const bcy = (ballY / 100) * VH;
 
             const closestX = Math.max(postRect.left, Math.min(bcx, postRect.right));
             const closestY = Math.max(postRect.top,  Math.min(bcy, postRect.bottom));
@@ -1084,8 +2517,8 @@ if (Math.abs(ballVY) < 0.05) ballVY = 0;
                 const nx = dx / dist;
                 const ny = dy / dist;
 
-                ballX = (closestX + nx * ballR) / window.innerWidth  * 100;
-                ballY = (closestY + ny * ballR) / window.innerHeight * 100;
+                ballX = (closestX + nx * ballR) / VW  * 100;
+                ballY = (closestY + ny * ballR) / VH * 100;
 
                 const dot = ballVX * nx + ballVY * ny;
                 ballVX -= 2 * dot * nx;
@@ -1100,28 +2533,31 @@ if (Math.abs(ballVY) < 0.05) ballVY = 0;
         });
 
         // === OYUNCU-TOP ÇARPIŞMASI ===
-        const pRadiusPx = player.offsetWidth / 2;
-        const bRadiusPx = ball.offsetWidth / 2;
+        const pRadiusPx = playerSize / 2;
+        const bRadiusPx = ballSize / 2;
 
-        const pPx = (playerX / 100) * window.innerWidth;
-        const pPy = (playerY / 100) * window.innerHeight;
-        const bPx = (ballX / 100) * window.innerWidth;
-        const bPy = (ballY / 100) * window.innerHeight;
+        const pPx = (playerX / 100) * VW;
+        const pPy = (playerY / 100) * VH;
+        const bPx = (ballX / 100) * VW;
+        const bPy = (ballY / 100) * VH;
 
         const dxPT = bPx - pPx;
         const dyPT = bPy - pPy;
         const distPT = Math.hypot(dxPT, dyPT);
         const minDistPT = pRadiusPx + bRadiusPx;
 
-    if (!halftimeActive && distPT < minDistPT && distPT > 0.01) {
-    const nx = dxPT / distPT;
-        const ny = dyPT / distPT;
+        // Penaltıda ilk dokunuştan sonra aynı temas topu sürükleyemez (top kaleye sürülerek girmesin)
+        const redGhost = shootoutActive && sh && sh.shooter === 'red' && sh.state === 'flight' && !sh.separated;
+        const blueGhost = shootoutActive && sh && sh.shooter === 'blue' && sh.state === 'flight' && !sh.separated;
+        if (!playDead && !redGhost && distPT < minDistPT && distPT > 0.01) {
+            const nx = dxPT / distPT;
+            const ny = dyPT / distPT;
 
-            let newBallX = (pPx + nx * minDistPT) / window.innerWidth  * 100;
-            let newBallY = (pPy + ny * minDistPT) / window.innerHeight * 100;
+            let newBallX = (pPx + nx * minDistPT) / VW  * 100;
+            let newBallY = (pPy + ny * minDistPT) / VH * 100;
 
-            const ballRP = (ball.offsetHeight / 2) / window.innerHeight * 100;
-            const autTopPct = (2 / window.innerHeight) * 100;
+            const ballRP = (ballSize / 2) / VH * 100;
+            const autTopPct = (2 / VH) * 100;
 
             newBallX = Math.max(4, Math.min(96 - ballRP, newBallX));
             const inGoalWidthPush = newBallX > 32.5 && newBallX < 67.5;
@@ -1133,42 +2569,31 @@ if (Math.abs(ballVY) < 0.05) ballVY = 0;
             ballVX += nx * 0.15;
             ballVY += ny * 0.15;
 
-            if (isRestarting) {
-    kickoffTaken = true;
-    isRestarting = false;
-
-    if (!matchStarted) {
-        startMatch();
-    } else if (waitingKickoff) {
-        // 2. yarı santra atıldı → süre devam
-        waitingKickoff = false;
-        waitingSecondHalf = false;
-        matchStartTime = performance.now() - (90 - matchTime) * 1000;
-    }
-}
+            onKickoffTaken();
+            shootoutKickUsed('red');   // penaltıda topa dokunmak = penaltı kullanıldı
         }
 
         // === RAKİP-TOP ÇARPIŞMASI ===
         {
-            const pPx2 = (playerBlueX / 100) * window.innerWidth;
-            const pPy2 = (playerBlueY / 100) * window.innerHeight;
-            const bPx2 = (ballX / 100) * window.innerWidth;
-            const bPy2 = (ballY / 100) * window.innerHeight;
+            const pPx2 = (playerBlueX / 100) * VW;
+            const pPy2 = (playerBlueY / 100) * VH;
+            const bPx2 = (ballX / 100) * VW;
+            const bPy2 = (ballY / 100) * VH;
 
             const dxBPT = bPx2 - pPx2;
             const dyBPT = bPy2 - pPy2;
             const distBPT = Math.hypot(dxBPT, dyBPT);
             const minDistBPT = pRadiusPx + bRadiusPx;
 
-if (!halftimeActive && distBPT < minDistBPT && distBPT > 0.01) {
-                  const nx = dxBPT / distBPT;
+            if (!playDead && !blueGhost && distBPT < minDistBPT && distBPT > 0.01) {
+                const nx = dxBPT / distBPT;
                 const ny = dyBPT / distBPT;
 
-                let newBallX = (pPx2 + nx * minDistBPT) / window.innerWidth  * 100;
-                let newBallY = (pPy2 + ny * minDistBPT) / window.innerHeight * 100;
+                let newBallX = (pPx2 + nx * minDistBPT) / VW  * 100;
+                let newBallY = (pPy2 + ny * minDistBPT) / VH * 100;
 
-                const ballRP2 = (ball.offsetHeight / 2) / window.innerHeight * 100;
-                const autTopPct2 = (2 / window.innerHeight) * 100;
+                const ballRP2 = (ballSize / 2) / VH * 100;
+                const autTopPct2 = (2 / VH) * 100;
 
                 newBallX = Math.max(4, Math.min(96 - ballRP2, newBallX));
                 const inGoalWidthPushB = newBallX > 32.5 && newBallX < 67.5;
@@ -1179,28 +2604,22 @@ if (!halftimeActive && distBPT < minDistBPT && distBPT > 0.01) {
                 ballX = newBallX;
                 ballY = newBallY;
 
-                const goalX = 50;
-                const goalY = 100;
-                const sgx = goalX - ballX;
-                const sgy = goalY - ballY;
-                const sgLen = Math.hypot(sgx, sgy) || 1;
+                if (twoP) {
+                    ballVX += nx * 0.15;
+                    ballVY += ny * 0.15;
+                } else {
+                    const goalX = 50;
+                    const goalY = 100;
+                    const sgx = goalX - ballX;
+                    const sgy = goalY - ballY;
+                    const sgLen = Math.hypot(sgx, sgy) || 1;
 
-                ballVX += (sgx / sgLen) * 0.15;
-                ballVY += (sgy / sgLen) * 0.15;
+                    ballVX += (sgx / sgLen) * 0.15;
+                    ballVY += (sgy / sgLen) * 0.15;
+                }
 
-                if (isRestarting) {
-    kickoffTaken = true;
-    isRestarting = false;
-
-    if (!matchStarted) {
-        startMatch();
-    } else if (waitingKickoff) {
-        // 2. yarı santra atıldı → süre devam
-        waitingKickoff = false;
-        waitingSecondHalf = false;
-        matchStartTime = performance.now() - (90 - matchTime) * 1000;
-    }
-}
+                onKickoffTaken();
+                shootoutKickUsed('blue');
             }
         }
 
@@ -1217,54 +2636,39 @@ if (!halftimeActive && distBPT < minDistBPT && distBPT > 0.01) {
         }
 
         // === TOP RENDER ===
-    ball.style.left = ballX + '%';
-    ball.style.top  = ballY + '%';
 
         // === GOL ALGILAMA ===
+        // (Süre dolmuşsa gol sonrası santra topu orta çizgiye koyar → devre otomatik biter)
         const goalLeft = 32.5;
         const goalRight = 67.5;
         const inGoalWidthGoal = ballX > goalLeft && ballX < goalRight;
 
-if (inGoalWidthGoal && ballY < 4) {
-    scoreRed++;
-    scoreRedEl.textContent = scoreRed;
-
-    if (waitingSecondHalf) {
-        // 45.00'da gol → mola başlat
-        waitingKickoff = true;
-        halftimeActive = true;
-        halftimeStartTime = performance.now();
-        halftimeCountdown = 15;
-        halftimeEl.style.display = 'block';
-        halftimeEl.textContent = 'devre arası ' + halftimeCountdown;
-        // top fiziği işlesin
-    }
-    restartTeam = 'blue';
-    startRestart();
-}
-
-if (inGoalWidthGoal && ballY > 96) {
-    scoreBlue++;
-    scoreBlueEl.textContent = scoreBlue;
-
-    if (waitingSecondHalf) {
-        // 45.00'da gol → mola başlat
-        waitingKickoff = true;
-        halftimeActive = true;
-        halftimeStartTime = performance.now();
-        halftimeCountdown = 15;
-        halftimeEl.style.display = 'block';
-        halftimeEl.textContent = 'devre arası ' + halftimeCountdown;
-    }
-    restartTeam = 'red';
-    startRestart();
-}
+        if (!halftimeActive && !goalPause && !shootoutActive) {
+            if (inGoalWidthGoal && ballY < 4) {
+                scoreRed++;
+                scoreRedEl.textContent = scoreRed;
+                startGoalPause('red');
+            } else if (inGoalWidthGoal && ballY > 96) {
+                scoreBlue++;
+                scoreBlueEl.textContent = scoreBlue;
+                startGoalPause('blue');
+            }
+        }
 
         // === KALECİLER ===
         const keeperSpeed = 0.30;
 
+        // Penaltıda kaleciler özel yönetilir (rastgele atlama)
+        if (shootoutActive && sh) updateShootoutKeepers();
+
         // Üst kaleci
-        {
+        if (halftimeActive || goalPause) {
+            // Molada ve gol sonrası kaleci kalesine döner
+            ktX += (50 - ktX) * 0.05;
+            ktY += (12 - ktY) * 0.05;
+        } else if (shootoutActive) {
+            // penaltı: updateShootoutKeepers yönetiyor
+        } else {
             const goalCenterX = 50;
             const goalCenterY = 5;
 
@@ -1285,15 +2689,20 @@ if (inGoalWidthGoal && ballY > 96) {
                 speedMult = 0.04;
             }
 
-            ktX += (targetX - ktX) * keeperSpeed * speedMult;
-            ktY += (targetY - ktY) * keeperSpeed * speedMult;
+            ktX += (targetX - ktX) * keeperSpeed * diff.ktSkill * speedMult;
+            ktY += (targetY - ktY) * keeperSpeed * diff.ktSkill * speedMult;
         }
 
         ktX = Math.max(26, Math.min(74, ktX));
         ktY = Math.max(6.5, Math.min(17.5, ktY));
 
         // Alt kaleci
-        {
+        if (halftimeActive || goalPause) {
+            kbX += (50 - kbX) * 0.05;
+            kbY += (88 - kbY) * 0.05;
+        } else if (shootoutActive) {
+            // penaltı: updateShootoutKeepers yönetiyor
+        } else {
             const goalCenterX = 50;
             const goalCenterY = 95;
 
@@ -1314,76 +2723,38 @@ if (inGoalWidthGoal && ballY > 96) {
                 speedMult = 0.04;
             }
 
-            kbX += (targetX - kbX) * keeperSpeed * speedMult;
-            kbY += (targetY - kbY) * keeperSpeed * speedMult;
+            kbX += (targetX - kbX) * keeperSpeed * diff.kbSkill * speedMult;
+            kbY += (targetY - kbY) * keeperSpeed * diff.kbSkill * speedMult;
         }
 
         kbX = Math.max(26, Math.min(74, kbX));
         kbY = Math.max(82.5, Math.min(93.5, kbY));
 
         // Kaleci render
-        keeperTop.style.left = ktX + '%';
-        keeperTop.style.top  = ktY + '%';
-        keeperBottom.style.left = kbX + '%';
-        keeperBottom.style.top  = kbY + '%';
 
         // === KALECİ-TOP ÇARPIŞMASI ===
-        function keeperBallCollision(kx, ky, radiusPx, isTop) {
-            const bR = ball.offsetWidth / 2;
-            const kPx = (kx / 100) * window.innerWidth;
-            const kPy = (ky / 100) * window.innerHeight;
-            const bPx = (ballX / 100) * window.innerWidth;
-            const bPy = (ballY / 100) * window.innerHeight;
 
-            const dx = bPx - kPx;
-            const dy = bPy - kPy;
-            const dist = Math.hypot(dx, dy);
-            const minDist = radiusPx + bR;
-
-            if (dist < minDist && dist > 0.01) {
-                const ballSpd = Math.hypot(ballVX, ballVY);
-                if (ballSpd > 1.0 && Math.random() < 0.30) {
-                    return;
-                }
-
-                const nx = dx / dist;
-                const ny = dy / dist;
-
-                ballX = (kPx + nx * minDist) / window.innerWidth  * 100;
-                ballY = (kPy + ny * minDist) / window.innerHeight * 100;
-
-                const dot = ballVX * nx + ballVY * ny;
-                ballVX -= 2 * dot * nx;
-                ballVY -= 2 * dot * ny;
-
-                if (isTop) {
-                    if (ballVY < 0) ballVY = Math.abs(ballVY);
-                } else {
-                    if (ballVY > 0) ballVY = -Math.abs(ballVY);
-                }
-            }
-        }
 
         // === KALECİ TOPU TUTMA ===
         const ballSpeed = Math.hypot(ballVX, ballVY);
 
         const distKtBall = Math.hypot(
-            (ballX - ktX) * (window.innerWidth / window.innerHeight),
+            (ballX - ktX) * (VW / VH),
             (ballY - ktY)
         );
-        if (!halftimeActive && !ktHasBall && distKtBall < 3 && ballSpeed < 0.5) {
-    ktHasBall = true;
-    ktHoldTimer = 10;
-}
+        if (!playDead && !shootoutActive && !ktHasBall && distKtBall < 3 && ballSpeed < 0.5) {
+            ktHasBall = true;
+            ktHoldTimer = 10;
+        }
 
         const distKbBall = Math.hypot(
-            (ballX - kbX) * (window.innerWidth / window.innerHeight),
+            (ballX - kbX) * (VW / VH),
             (ballY - kbY)
         );
-        if (!halftimeActive && !kbHasBall && distKbBall < 3 && ballSpeed < 0.5) {
-    kbHasBall = true;
-    kbHoldTimer = 10;
-}
+        if (!playDead && !shootoutActive && !kbHasBall && distKbBall < 3 && ballSpeed < 0.5) {
+            kbHasBall = true;
+            kbHoldTimer = 10;
+        }
 
         // === ÜST KALECİ PAS ===
         if (ktHasBall) {
@@ -1401,21 +2772,30 @@ if (inGoalWidthGoal && ballY > 96) {
                 let closest = null;
                 let minD = 999;
                 for (const t of teammates) {
+                    // Yakın takım arkadaşı ara
                     if (t.y > 20 && t.y < 60) {
                         const d = Math.hypot(t.x - ktX, t.y - ktY);
-                        if (d < minD) { minD = d; closest = t; }
+                        if (d < 60 && d < minD) { minD = d; closest = t; }
                     }
                 }
 
                 if (closest) {
+                    // Takım arkadaşına at
                     const dx = closest.x - ktX;
                     const dy = closest.y - ktY;
                     const len = Math.hypot(dx, dy) || 1;
                     ballVX = (dx / len) * 1.25;
                     ballVY = (dy / len) * 1.25;
                 } else {
-                    ballVX = 1.5;
-                    ballVY = 1.5;
+                    // Takım arkadaşı yok → ileri rastgele bir yere at
+                    const randomX = 20 + Math.random() * 60;   // %20-80 arası
+                    const randomY = 25 + Math.random() * 20;   // %25-45 arası (üst yarıya doğru)
+
+                    const dx = randomX - ktX;
+                    const dy = randomY - ktY;
+                    const len = Math.hypot(dx, dy) || 1;
+                    ballVX = (dx / len) * 1.5;
+                    ballVY = (dy / len) * 1.5;
                 }
 
                 ktHasBall = false;
@@ -1438,21 +2818,30 @@ if (inGoalWidthGoal && ballY > 96) {
                 let closest = null;
                 let minD = 999;
                 for (const t of teammates) {
+                    // Yakın takım arkadaşı ara
                     if (t.y > 40 && t.y < 80) {
                         const d = Math.hypot(t.x - kbX, t.y - kbY);
-                        if (d < minD) { minD = d; closest = t; }
+                        if (d < 60 && d < minD) { minD = d; closest = t; }
                     }
                 }
 
                 if (closest) {
+                    // Takım arkadaşına at
                     const dx = closest.x - kbX;
                     const dy = closest.y - kbY;
                     const len = Math.hypot(dx, dy) || 1;
                     ballVX = (dx / len) * 1.25;
                     ballVY = (dy / len) * 1.25;
                 } else {
-                    ballVX = 1.5;
-                    ballVY = 1.5;
+                    // Takım arkadaşı yok → ileri rastgele bir yere at
+                    const randomX = 20 + Math.random() * 60;   // %20-80 arası
+                    const randomY = 55 + Math.random() * 20;   // %55-75 arası (alt yarıya doğru)
+
+                    const dx = randomX - kbX;
+                    const dy = randomY - kbY;
+                    const len = Math.hypot(dx, dy) || 1;
+                    ballVX = (dx / len) * 1.5;
+                    ballVY = (dy / len) * 1.5;
                 }
 
                 kbHasBall = false;
@@ -1460,79 +2849,31 @@ if (inGoalWidthGoal && ballY > 96) {
         }
 
         // === KALECİ-OYUNCU ÇARPIŞMASI ===
-        function keeperPlayerCollision(kx, ky, radiusPx, isTop) {
-            const pR = player.offsetWidth / 2;
-            const kPx = (kx / 100) * window.innerWidth;
-            const kPy = (ky / 100) * window.innerHeight;
-            const pPx = (playerX / 100) * window.innerWidth;
-            const pPy = (playerY / 100) * window.innerHeight;
 
-            const dx = pPx - kPx;
-            const dy = pPy - kPy;
-            const dist = Math.hypot(dx, dy);
-            const minDist = radiusPx + pR;
 
-            if (dist < minDist && dist > 0.01) {
-                const nx = dx / dist;
-                const ny = dy / dist;
+        const keeperRadiusPx = keeperSize / 2;
 
-                playerX = (kPx + nx * minDist) / window.innerWidth  * 100;
-                playerY = (kPy + ny * minDist) / window.innerHeight * 100;
-
-                const push = 0.2;
-                if (isTop) {
-                    ktX -= nx * push;
-                    ktY -= ny * push;
-                } else {
-                    kbX -= nx * push;
-                    kbY -= ny * push;
-                }
-            }
+        if (!playDead) {
+            keeperBallCollision(ktX, ktY, keeperRadiusPx, true);
+            keeperBallCollision(kbX, kbY, keeperRadiusPx, false);
         }
-
-        const keeperRadiusPx = keeperTop.offsetWidth / 2;
-
-if (!halftimeActive) {
-    keeperBallCollision(ktX, ktY, keeperRadiusPx, true);
-    keeperBallCollision(kbX, kbY, keeperRadiusPx, false);
-}
         keeperPlayerCollision(ktX, ktY, keeperRadiusPx, true);
         keeperPlayerCollision(kbX, kbY, keeperRadiusPx, false);
 
         // === RAKİP-KALECİ ÇARPIŞMASI ===
-        function keeperBlueCollision(kx, ky, radiusPx) {
-            const pbR = playerBlue.offsetWidth / 2;
-            const kPx = (kx / 100) * window.innerWidth;
-            const kPy = (ky / 100) * window.innerHeight;
-            const pbPx = (playerBlueX / 100) * window.innerWidth;
-            const pbPy = (playerBlueY / 100) * window.innerHeight;
 
-            const dx = pbPx - kPx;
-            const dy = pbPy - kPy;
-            const dist = Math.hypot(dx, dy);
-            const minDist = radiusPx + pbR;
-
-            if (dist < minDist && dist > 0.01) {
-                const nx = dx / dist;
-                const ny = dy / dist;
-
-                playerBlueX = (kPx + nx * minDist) / window.innerWidth  * 100;
-                playerBlueY = (kPy + ny * minDist) / window.innerHeight * 100;
-            }
-        }
 
         keeperBlueCollision(ktX, ktY, keeperRadiusPx);
         keeperBlueCollision(kbX, kbY, keeperRadiusPx);
 
         // === DİREK ÇARPIŞMASI ===
-        const radius = player.offsetWidth / 2;
+        const radius = playerSize / 2;
 
-        posts.forEach(post => {
-            const postRect = post.getBoundingClientRect();
+        postRects.forEach(postRect => {
 
-            const cx = (playerX / 100) * window.innerWidth;
-            const cy = (playerY / 100) * window.innerHeight;
-            const pcy = (prevY / 100) * window.innerHeight;
+            const cx = (playerX / 100) * VW;
+            const cy = (playerY / 100) * VH;
+            const pcy = (prevY / 100) * VH;
 
             const closestXx = Math.max(postRect.left, Math.min(cx, postRect.right));
             const closestYx = Math.max(postRect.top,  Math.min(pcy, postRect.bottom));
@@ -1542,7 +2883,7 @@ if (!halftimeActive) {
 
             if (distX < radius) playerX = prevX;
 
-            const fixedCx = (playerX / 100) * window.innerWidth;
+            const fixedCx = (playerX / 100) * VW;
             const closestXy = Math.max(postRect.left, Math.min(fixedCx, postRect.right));
             const closestYy = Math.max(postRect.top,  Math.min(cy, postRect.bottom));
             const dxY = fixedCx - closestXy;
@@ -1553,12 +2894,11 @@ if (!halftimeActive) {
         });
 
         // === RAKİP-DİREK ÇARPIŞMASI ===
-        const radiusBlue = playerBlue.offsetWidth / 2;
+        const radiusBlue = playerSize / 2;
 
-        posts.forEach(post => {
-            const postRect = post.getBoundingClientRect();
-            const bxPx = (playerBlueX / 100) * window.innerWidth;
-            const byPx = (playerBlueY / 100) * window.innerHeight;
+        postRects.forEach(postRect => {
+            const bxPx = (playerBlueX / 100) * VW;
+            const byPx = (playerBlueY / 100) * VH;
 
             const closestX = Math.max(postRect.left, Math.min(bxPx, postRect.right));
             const closestY = Math.max(postRect.top,  Math.min(byPx, postRect.bottom));
@@ -1571,17 +2911,17 @@ if (!halftimeActive) {
                 const nx = dx / dist;
                 const ny = dy / dist;
 
-                playerBlueX = (closestX + nx * radiusBlue) / window.innerWidth  * 100;
-                playerBlueY = (closestY + ny * radiusBlue) / window.innerHeight * 100;
+                playerBlueX = (closestX + nx * radiusBlue) / VW  * 100;
+                playerBlueY = (closestY + ny * radiusBlue) / VH * 100;
             }
         });
 
         // === RAKİP-OYUNCU ÇARPIŞMASI ===
         {
-            const pPx2 = (playerX / 100) * window.innerWidth;
-            const pPy2 = (playerY / 100) * window.innerHeight;
-            const pbPx2 = (playerBlueX / 100) * window.innerWidth;
-            const pbPy2 = (playerBlueY / 100) * window.innerHeight;
+            const pPx2 = (playerX / 100) * VW;
+            const pPy2 = (playerY / 100) * VH;
+            const pbPx2 = (playerBlueX / 100) * VW;
+            const pbPy2 = (playerBlueY / 100) * VH;
 
             const dxPP = pPx2 - pbPx2;
             const dyPP = pPy2 - pbPy2;
@@ -1593,46 +2933,36 @@ if (!halftimeActive) {
                 const ny = dyPP / distPP;
                 const overlap = (minDistPP - distPP) / 2;
 
-                playerX = (pPx2 + nx * overlap) / window.innerWidth  * 100;
-                playerY = (pPy2 + ny * overlap) / window.innerHeight * 100;
+                playerX = (pPx2 + nx * overlap) / VW  * 100;
+                playerY = (pPy2 + ny * overlap) / VH * 100;
 
-                playerBlueX = (pbPx2 - nx * overlap) / window.innerWidth  * 100;
-                playerBlueY = (pbPy2 - ny * overlap) / window.innerHeight * 100;
+                playerBlueX = (pbPx2 - nx * overlap) / VW  * 100;
+                playerBlueY = (pbPy2 - ny * overlap) / VH * 100;
             }
         }
 
-// === MOLA BAŞLANGICI (top orta sahaya değince) ===
-if (matchRunning && waitingSecondHalf && matchTime <= 45 && !halftimeActive && !waitingKickoff) {
-    if (Math.abs(ballY - 50) < 1.5) {
-        halftimeActive = true;
-        halftimeStartTime = performance.now();
-        halftimeCountdown = 15;
-        halftimeEl.style.display = 'block';
-        halftimeEl.textContent = 'devre arası ' + halftimeCountdown;
-        
-        // 2. yarı santra bekleniyor
-        waitingKickoff = true;
-    }
-}
-
-        // === MAÇ BİTİŞİ ===
-        if (matchRunning && matchTime <= 0 && currentHalf === 2 && !waitingSecondHalf) {
-            if (Math.abs(ballY - 50) < 1.5) {
-                matchRunning = false;
-                endMatch();
-            }
+        // === DEVRE / MAÇ SONU ===
+        // Süre dolunca saat durur; top orta çizgiden geçince (veya gol sonrası
+        // santra yapılınca) devre biter. 1. ve uzatma 1. yarı → mola,
+        // 90. dk berabereyse → uzatmalar, aksi halde maç biter.
+        if (periodEnding && !halftimeActive && !goalPause && !gameOver) {
+            periodEndWait += dt;
+            const crossedCenter = Math.abs(ballY - 50) < 1.5 || (prevBallY - 50) * (ballY - 50) < 0;
+            // Top ortaya gelmese de en fazla PERIOD_END_MAX sn beklenir (saat sonsuza dek donmasın)
+            if (crossedCenter || periodEndWait >= PERIOD_END_MAX) finishPeriod();
         }
 
-        // Uygula
-        player.style.left = playerX + '%';
-        player.style.top  = playerY + '%';
+        // === PENALTI SONUCU ve nişan çizgisi ===
+        if (shootoutActive && sh) updateShootout(dt);
+        updateAimLine();
+
+        // Uygula: tüm konumlar kare sonunda tek seferde yazılır
+        render();
 
         requestAnimationFrame(loop);
     }
 
     // Başlangıç pozisyonu
-    player.style.left = playerX + '%';
-    player.style.top  = playerY + '%';
     updateTimer();
 
     loop();
